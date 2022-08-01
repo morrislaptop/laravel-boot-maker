@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Morrislaptop\LaravelBootMaker\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class LaravelBootMakerCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'laravel-boot-maker';
 
     public $description = 'My command';
 
