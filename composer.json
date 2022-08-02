@@ -35,8 +35,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Morrislaptop\\LaravelBootMaker\\": "src",
-            "Morrislaptop\\LaravelBootMaker\\Database\\Factories\\": "database/factories"
+            "Morrislaptop\\LaravelBootMaker\\": "src"
         }
     },
     "autoload-dev": {
@@ -55,16 +54,6 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "phpstan/extension-installer": true
-        }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Morrislaptop\\LaravelBootMaker\\LaravelBootMakerServiceProvider"
-            ],
-            "aliases": {
-                "LaravelBootMaker": "Morrislaptop\\LaravelBootMaker\\Facades\\LaravelBootMaker"
-            }
         }
     },
     "minimum-stability": "dev",
