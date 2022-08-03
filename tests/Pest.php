@@ -1,5 +1,3 @@
 <?php
 
-use Morrislaptop\LaravelBootMaker\Tests\TestCase;
-
-uses(TestCase::class)->in(__DIR__);
+use Morrislaptop\LaravelBootMaker\Tests\PartialTestCase;
