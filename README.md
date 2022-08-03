@@ -1,66 +1,105 @@
 
 [<img src="https://github-ads.s3.eu-central-1.amazonaws.com/support-ukraine.svg?t=1" />](https://supportukrainenow.org)
 
-# Partially boot Laravel for your lightning fast tests
+# Laravel Boot Maker
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/morrislaptop/laravel-boot-maker.svg?style=flat-square)](https://packagist.org/packages/morrislaptop/laravel-boot-maker)
 [![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/morrislaptop/laravel-boot-maker/run-tests?label=tests)](https://github.com/morrislaptop/laravel-boot-maker/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/morrislaptop/laravel-boot-maker/Fix%20PHP%20code%20style%20issues?label=code%20style)](https://github.com/morrislaptop/laravel-boot-maker/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/morrislaptop/laravel-boot-maker.svg?style=flat-square)](https://packagist.org/packages/morrislaptop/laravel-boot-maker)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+![Laravel Boot Maker](./laravel-boot-maker.png)
 
-# @todo
+Partially boot Laravel for your lightning fast tests. 
 
-- [ ] Installer to create `CreatesPartialApplication`
+When you extend `TestCase`, you're booting the whole framework for each test in your suite.
+It's likely that you're not using all the features for each test, slowing down your
+test suite considerably. 
 
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-boot-maker.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/laravel-boot-maker)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+This package allows you to "opt in" to boot just the Laravel features you need for 
+your test to pass. Your test will run much quicker as a result. 
 
 ## Installation
 
 You can install the package via composer:
 
 ```bash
-composer require morrislaptop/laravel-boot-maker
+composer require morrislaptop/laravel-boot-maker --dev
 ```
 
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="laravel-boot-maker-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
-
-```bash
-php artisan vendor:publish --tag="laravel-boot-maker-config"
-```
-
-This is the contents of the published config file:
+Create the following trait in `tests/CreatesPartialApplication.php`
 
 ```php
-return [
-];
+<?php
+
+namespace Tests;
+
+trait CreatesPartialApplication
+{
+    /**
+     * Creates the application.
+     *
+     * @return \Illuminate\Foundation\Application
+     */
+    public function createPartialApplication()
+    {
+        $app = require __DIR__.'/../bootstrap/app.php';
+
+        return $app;
+    }
+}
 ```
 
-Optionally, you can publish the views using
+Create a base partial test class which uses this trait at `tests/PartialTestCase.php`
 
-```bash
-php artisan vendor:publish --tag="laravel-boot-maker-views"
+```php
+<?php
+
+namespace Tests;
+
+use Morrislaptop\LaravelBootMaker\PartialTestCase as BasePartialTestCase;
+
+abstract class PartialTestCase extends BasePartialTestCase
+{
+    use CreatesPartialApplication;
+}
 ```
 
 ## Usage
 
+It's recommended to get the tests passing using the full `TestCase` first, and then 
+drop down to `PartialTestCase` and select only the Laravel features you need.
+
+> This approach ensures you're only using the Laravel features 
+> you think are using, which might be useful if trying to 
+> decouple from the framework bit. 
+
 ```php
-$laravelBootMaker = new Morrislaptop\LaravelBootMaker();
-echo $laravelBootMaker->echoPhrase('Hello, Morrislaptop!');
+<?php
+
+namespace Tests\Feature;
+
+use App\Events\QuestionCreated;
+use App\Listeners\AskQuestion;
+use Illuminate\Support\Facades\Event;
+use Morrislaptop\LaravelBootMaker\Concerns\Events;
+use Tests\PartialTestCase;
+
+class QuestionCreatedTest extends PartialTestCase
+{
+    use Events;
+
+    /**
+     * A basic feature test example.
+     *
+     * @return void
+     */
+    public function test_example()
+    {
+        Event::fake();
+        Event::assertListening(QuestionCreated::class, AskQuestion::class);
+    }
+}
 ```
 
 ## Testing
@@ -89,3 +128,7 @@ Please review [our security policy](../../security/policy) on how to report secu
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
+## Todo
+
+- [ ] Installer to create `CreatesPartialApplication`

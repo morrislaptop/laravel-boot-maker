@@ -49,7 +49,7 @@ class PartialTestCase extends TestCase
             ->sortBy(fn (string $trait) => $preferredOrder[$trait] ?? INF)
             ->map(fn (string $trait) => (string) Str::of($trait)->afterLast('\\')->prepend('boot'))
             ->filter(fn (string $method) => method_exists($this, $method))
-            ->dump()
+            // ->dump()
             ->each(fn (string $method) => $this->$method());
     }
 }
