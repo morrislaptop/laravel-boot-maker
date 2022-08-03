@@ -7,7 +7,7 @@ use App\Providers\EventServiceProvider;
 trait Events
 {
     use Facades;
-    use Cache;
+    use Cache; // @todo this loads config as well but not needed for events...
     use Application;
     use Filesystem;
 

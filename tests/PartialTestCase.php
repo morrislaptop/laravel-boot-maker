@@ -12,7 +12,7 @@ class PartialTestCase extends BasePartialTestCase
 {
     protected function createPartialApplication()
     {
-        $basePath = realpath(__DIR__.'/..');
+        $basePath = realpath(__DIR__.'/../laravel');
 
         return new Application($basePath);
     }

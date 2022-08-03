@@ -6,6 +6,8 @@ use Illuminate\Cache\CacheServiceProvider;
 
 trait Cache
 {
+    use Config;
+
     protected function bootCache()
     {
         $provider = new CacheServiceProvider($this->app);

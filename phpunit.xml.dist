@@ -19,8 +19,11 @@
     verbose="true"
 >
     <testsuites>
-        <testsuite name="Morrislaptop Test Suite">
-            <directory>tests</directory>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">src</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory suffix="Test.php">tests</directory>
         </testsuite>
     </testsuites>
     <coverage>
