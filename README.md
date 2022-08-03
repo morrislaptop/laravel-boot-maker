@@ -1,6 +1,4 @@
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/support-ukraine.svg?t=1" />](https://supportukrainenow.org)
-
 # Laravel Boot Maker
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/morrislaptop/laravel-boot-maker.svg?style=flat-square)](https://packagist.org/packages/morrislaptop/laravel-boot-maker)
@@ -9,8 +7,6 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/morrislaptop/laravel-boot-maker.svg?style=flat-square)](https://packagist.org/packages/morrislaptop/laravel-boot-maker)
 
 ![Laravel Boot Maker](./laravel-boot-maker.png)
-
-Partially boot Laravel for your lightning fast tests. 
 
 When you extend `TestCase`, you're booting the whole framework for each test in your suite.
 It's likely that you're not using all the features for each test, slowing down your
@@ -70,10 +66,6 @@ abstract class PartialTestCase extends BasePartialTestCase
 It's recommended to get the tests passing using the full `TestCase` first, and then 
 drop down to `PartialTestCase` and select only the Laravel features you need.
 
-> This approach ensures you're only using the Laravel features 
-> you think are using, which might be useful if trying to 
-> decouple from the framework bit. 
-
 ```php
 <?php
 
@@ -101,6 +93,10 @@ class QuestionCreatedTest extends PartialTestCase
     }
 }
 ```
+
+> This approach ensures you're only using the Laravel features 
+> you think are using, which might be useful if trying to 
+> decouple from the framework bit. 
 
 ## Testing
 
@@ -131,4 +127,5 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 
 ## Todo
 
-- [ ] Installer to create `CreatesPartialApplication`
+- [ ] Installer to create `CreatesPartialApplication` and `PartialTestCase`
+- [ ] Listener to determine what Laravel features are used
