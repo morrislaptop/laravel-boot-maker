@@ -118,6 +118,8 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## Credits
 
+Inspired by @ekvedaras at @gosuperscript
+
 - [Craig Morris](https://github.com/morrislaptop)
 - [All Contributors](../../contributors)
 
