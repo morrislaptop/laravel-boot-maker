@@ -8,7 +8,7 @@ trait Cache
 {
     use Config;
 
-    protected function bootCache()
+    protected function setUpCache()
     {
         $provider = new CacheServiceProvider($this->app);
         $provider->register();

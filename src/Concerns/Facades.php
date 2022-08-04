@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Facade;
 
 trait Facades
 {
-    protected function bootFacades()
+    protected function setUpFacades()
     {
         Facade::setFacadeApplication($this->app);
         App::setFacadeApplication($this->app);

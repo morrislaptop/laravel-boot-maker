@@ -20,7 +20,7 @@ class PartialTestCase extends TestCase
     protected function setUp(): void
     {
         $this->createPartialApplication();
-        $this->bootConcerns();
+        $this->setUpConcerns();
 
         // Facade::clearResolvedInstances();
 
@@ -41,13 +41,13 @@ class PartialTestCase extends TestCase
         // $this->setUpHasRun = true;
     }
 
-    protected function bootConcerns()
+    protected function setUpConcerns()
     {
         $preferredOrder = array_flip(self::ExpectedTraitBootOrder);
 
         collect(class_uses_recursive(static::class))
             ->sortBy(fn (string $trait) => $preferredOrder[$trait] ?? INF)
-            ->map(fn (string $trait) => (string) Str::of($trait)->afterLast('\\')->prepend('boot'))
+            ->map(fn (string $trait) => 'setUp' . class_basename($trait))
             ->filter(fn (string $method) => method_exists($this, $method))
             // ->dump()
             ->each(fn (string $method) => $this->$method());

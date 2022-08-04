@@ -11,7 +11,7 @@ trait Application
 
     protected BaseApplication $app;
 
-    protected function bootApplication()
+    protected function setUpApplication()
     {
         // @todo - ensure method exists via trait in app space.
         $this->app = $this->createPartialApplication();

@@ -11,7 +11,7 @@ trait Events
     use Application;
     use Filesystem;
 
-    protected function bootEvents() {
+    protected function setUpEvents() {
         $provider = new EventServiceProvider($this->app);
 
         $this->app->register($provider);

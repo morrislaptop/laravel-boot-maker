@@ -6,7 +6,7 @@ use Illuminate\Filesystem\FilesystemServiceProvider;
 
 trait Filesystem
 {
-    protected function bootFilesystem()
+    protected function setUpFilesystem()
     {
         $provider = new FilesystemServiceProvider($this->app);
         $provider->register();
