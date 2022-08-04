@@ -6,12 +6,13 @@ use Illuminate\Support\Facades\Event;
 use Morrislaptop\LaravelBootMaker\Concerns\Events;
 use Morrislaptop\LaravelBootMaker\Tests\PartialTestCase;
 
-uses(
-    PartialTestCase::class,
-    Events::class
-);
+class EventsTest extends PartialTestCase
+{
+    use Events;
 
-it('can test events stuff', function () {
-    Event::fake();
-    Event::assertListening(QuestionCreated::class, AskQuestion::class);
-});
+    public function test_it_can_test_events()
+    {
+        Event::fake();
+        Event::assertListening(QuestionCreated::class, AskQuestion::class);
+    }
+}

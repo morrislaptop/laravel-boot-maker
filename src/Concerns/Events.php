@@ -3,19 +3,21 @@
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use App\Providers\EventServiceProvider;
+use Illuminate\Cache\CacheServiceProvider;
+use Illuminate\Filesystem\FilesystemServiceProvider;
 
 trait Events
 {
-    use Facades;
-    use Cache; // @todo this loads config as well but not needed for events...
-    use Application;
-    use Filesystem;
+    protected function setUpEvents()
+    {
+        $files = new FilesystemServiceProvider($this->app);
+        $this->app->register($files);
 
-    protected function setUpEvents() {
-        $provider = new EventServiceProvider($this->app);
+        $cache = new CacheServiceProvider($this->app);
+        $this->app->register($cache);
 
-        $this->app->register($provider);
-
-        $provider->callBootingCallbacks();
+        $events = new EventServiceProvider($this->app);
+        $this->app->register($events);
+        $events->callBootingCallbacks();
     }
 }

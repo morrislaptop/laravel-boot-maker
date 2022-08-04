@@ -2,14 +2,6 @@
 
 protected function setUp(): void
 {
-    Facade::clearResolvedInstances();
-
-    if (! $this->app) {
-        $this->refreshApplication();
-
-        ParallelTesting::callSetUpTestCaseCallbacks($this);
-    }
-
     $this->setUpTraits();
 
     foreach ($this->afterApplicationCreatedCallbacks as $callback) {
@@ -21,14 +13,51 @@ protected function setUp(): void
     $this->setUpHasRun = true;
 }
 
-public function createApplication()
-{
-    $app = require __DIR__.'/../bootstrap/app.php';
+        /**
+     * Boot the testing helper traits.
+     *
+     * @return array
+     */
+    protected function setUpTraits()
+    {
+        $uses = array_flip(class_uses_recursive(static::class));
 
-    $app->make(Kernel::class)->bootstrap();
+        if (isset($uses[RefreshDatabase::class])) {
+            $this->refreshDatabase();
+        }
 
-    return $app;
-}
+        if (isset($uses[DatabaseMigrations::class])) {
+            $this->runDatabaseMigrations();
+        }
+
+        if (isset($uses[DatabaseTransactions::class])) {
+            $this->beginDatabaseTransaction();
+        }
+
+        if (isset($uses[WithoutMiddleware::class])) {
+            $this->disableMiddlewareForAllTests();
+        }
+
+        if (isset($uses[WithoutEvents::class])) {
+            $this->disableEventsForAllTests();
+        }
+
+        if (isset($uses[WithFaker::class])) {
+            $this->setUpFaker();
+        }
+
+        foreach ($uses as $trait) {
+            if (method_exists($this, $method = 'setUp'.class_basename($trait))) {
+                $this->{$method}();
+            }
+
+            if (method_exists($this, $method = 'tearDown'.class_basename($trait))) {
+                $this->beforeApplicationDestroyed(fn () => $this->{$method}());
+            }
+        }
+
+        return $uses;
+    }
 
     /**
      * Bootstrap the application for artisan commands.
@@ -41,14 +70,22 @@ public function createApplication()
             $this->app->bootstrapWith($this->bootstrappers());
         }
 
-        $this->app->loadDeferredProviders();
-
         if (! $this->commandsLoaded) {
             $this->commands();
 
             $this->commandsLoaded = true;
         }
     }
+
+        protected $bootstrappers = [
+            \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
+            \Illuminate\Foundation\Bootstrap\LoadConfiguration::class,
+            \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
+            \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
+            \Illuminate\Foundation\Bootstrap\SetRequestForConsole::class,
+            \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
+            \Illuminate\Foundation\Bootstrap\BootProviders::class,
+        ];
 
 protected function setUpTraits()
 {

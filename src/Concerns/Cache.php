@@ -3,6 +3,7 @@
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use Illuminate\Cache\CacheServiceProvider;
+use Illuminate\Filesystem\FilesystemServiceProvider;
 
 trait Cache
 {
@@ -10,7 +11,10 @@ trait Cache
 
     protected function setUpCache()
     {
-        $provider = new CacheServiceProvider($this->app);
-        $provider->register();
+        $files = new FilesystemServiceProvider($this->app);
+        $this->app->register($files);
+
+        $cache = new CacheServiceProvider($this->app);
+        $cache->register();
     }
 }

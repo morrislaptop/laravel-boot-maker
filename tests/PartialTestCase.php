@@ -10,10 +10,12 @@ use Orchestra\Testbench\TestCase as Orchestra;
 
 class PartialTestCase extends BasePartialTestCase
 {
-    protected function createPartialApplication()
+    public function createApplication()
     {
-        $basePath = realpath(__DIR__.'/../laravel');
+        $app = require __DIR__.'/../laravel/bootstrap/app.php';
 
-        return new Application($basePath);
+        // $app->make(Kernel::class)->bootstrap(); // Don't bootstrap automatically...
+
+        return $app;
     }
 }
