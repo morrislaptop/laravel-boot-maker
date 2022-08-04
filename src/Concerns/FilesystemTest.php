@@ -5,16 +5,18 @@ use App\Events\QuestionCreated;
 use App\Listeners\AskQuestion;
 use Illuminate\Support\Facades\Cache as CacheFacade;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
 use Morrislaptop\LaravelBootMaker\Concerns\Events;
 use Morrislaptop\LaravelBootMaker\Tests\PartialTestCase;
 
-class CacheTest extends PartialTestCase
+class FilesystemTest extends PartialTestCase
 {
-    use Cache;
+    use Filesystem;
 
-    public function test_it_can_test_cache()
+    public function test_it_can_test_filesystem()
     {
-        CacheFacade::put('question', 42);
-        $this->assertEquals(42, CacheFacade::get('question'));
+        Storage::disk('local')->put('example.txt', 'Contents');
+
+        $this->assertEquals('Contents', Storage::disk('local')->get('example.txt'));
     }
 }

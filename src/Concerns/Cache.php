@@ -11,10 +11,7 @@ trait Cache
 
     protected function setUpCache()
     {
-        $files = new FilesystemServiceProvider($this->app);
-        $this->app->register($files);
-
         $cache = new CacheServiceProvider($this->app);
-        $cache->register();
+        $this->app->register($cache);
     }
 }

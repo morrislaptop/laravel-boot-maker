@@ -37,7 +37,7 @@ trait CreatesPartialApplication
      *
      * @return \Illuminate\Foundation\Application
      */
-    public function createPartialApplication()
+    public function createApplication()
     {
         $app = require __DIR__.'/../bootstrap/app.php';
 
@@ -93,6 +93,8 @@ class QuestionCreatedTest extends PartialTestCase
     }
 }
 ```
+
+For a full list of features to enable, see [src/Concerns](src/Concerns/);
 
 > This approach ensures you're only using the Laravel features 
 > you think are using, which might be useful if trying to 

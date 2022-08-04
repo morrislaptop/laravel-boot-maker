@@ -8,13 +8,12 @@ use Illuminate\Support\Facades\Event;
 use Morrislaptop\LaravelBootMaker\Concerns\Events;
 use Morrislaptop\LaravelBootMaker\Tests\PartialTestCase;
 
-class CacheTest extends PartialTestCase
+class ConfigTest extends PartialTestCase
 {
-    use Cache;
+    use Config;
 
-    public function test_it_can_test_cache()
+    public function test_it_can_test_config()
     {
-        CacheFacade::put('question', 42);
-        $this->assertEquals(42, CacheFacade::get('question'));
+        $this->assertEquals('Laravel', config('app.name'));
     }
 }
