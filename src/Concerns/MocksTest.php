@@ -9,16 +9,17 @@ use Morrislaptop\LaravelBootMaker\Concerns\Events;
 use Morrislaptop\LaravelBootMaker\Concerns\Mocks;
 use Morrislaptop\LaravelBootMaker\Tests\PartialTestCase;
 
-uses(
-    PartialTestCase::class,
-    Mocks::class
-);
+class MocksTest extends PartialTestCase
+{
+    use Mocks;
 
-it('can test mocking', function () {
-    $this->mock(Service::class, function (MockInterface $mock) {
-        $mock->shouldReceive('process')->once();
-    });
+    public function test_it_can_mock()
+    {
+        $this->mock(Service::class, function (MockInterface $mock) {
+            $mock->shouldReceive('process')->once();
+        });
 
-    $service = resolve(Service::class);
-    // $service->process();
-});
+        $service = resolve(Service::class);
+        $service->process();
+    }
+}

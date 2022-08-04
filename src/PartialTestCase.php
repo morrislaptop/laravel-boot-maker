@@ -21,24 +21,11 @@ class PartialTestCase extends TestCase
     {
         $this->createPartialApplication();
         $this->setUpConcerns();
+    }
 
-        // Facade::clearResolvedInstances();
-
-        // if (! $this->app) {
-        //     $this->refreshApplication();
-
-        //     ParallelTesting::callSetUpTestCaseCallbacks($this);
-        // }
-
-        // $this->setUpTraits();
-
-        // foreach ($this->afterApplicationCreatedCallbacks as $callback) {
-        //     $callback();
-        // }
-
-        // Model::setEventDispatcher($this->app['events']);
-
-        // $this->setUpHasRun = true;
+    protected function tearDown(): void
+    {
+        $this->tearDownConcerns();
     }
 
     protected function setUpConcerns()
@@ -48,6 +35,15 @@ class PartialTestCase extends TestCase
         collect(class_uses_recursive(static::class))
             ->sortBy(fn (string $trait) => $preferredOrder[$trait] ?? INF)
             ->map(fn (string $trait) => 'setUp' . class_basename($trait))
+            ->filter(fn (string $method) => method_exists($this, $method))
+            // ->dump()
+            ->each(fn (string $method) => $this->$method());
+    }
+
+    protected function tearDownConcerns()
+    {
+        collect(class_uses_recursive(static::class))
+            ->map(fn (string $trait) => 'tearDown' . class_basename($trait))
             ->filter(fn (string $method) => method_exists($this, $method))
             // ->dump()
             ->each(fn (string $method) => $this->$method());
