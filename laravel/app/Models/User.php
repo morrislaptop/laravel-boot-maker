@@ -10,6 +10,7 @@ use Illuminate\Notifications\Notifiable;
 /**
  * @property string $name
  * @property string $email
+ * @method static User create(array $attributes = [])
  */
 class User extends Authenticatable
 {
