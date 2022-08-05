@@ -16,16 +16,28 @@ class DatabaseTest extends PartialTestCase
 
     public function test_it_can_test_database()
     {
+        $this->createUsersTable();
+
+        $this->assertNotNull(User::create([
+            'email' => 'craig.michael.morris@gmail.com',
+            'name' => 'Craig',
+        ]));
+    }
+
+    public function test_it_can_use_factories()
+    {
+        $this->createUsersTable();
+
+        $this->assertNotNull(User::factory()->create());
+    }
+
+    protected function createUsersTable()
+    {
         DB::statement('CREATE TABLE users (
             name TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
             created_at DATETIME,
             updated_at DATETIME
         );');
-
-        $this->assertNotNull(User::create([
-            'email' => 'craig.michael.morris@gmail.com',
-            'name' => 'Craig',
-        ]));
     }
 }

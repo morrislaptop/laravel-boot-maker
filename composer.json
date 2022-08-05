@@ -41,6 +41,7 @@
     "autoload-dev": {
         "psr-4": {
             "App\\": "laravel/app/",
+            "Database\\Factories\\": "laravel/database/factories/",
             "Morrislaptop\\LaravelBootMaker\\Tests\\": "tests"
         }
     },
