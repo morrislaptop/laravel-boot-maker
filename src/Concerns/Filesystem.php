@@ -11,6 +11,6 @@ trait Filesystem
     protected function setUpFilesystem()
     {
         $provider = new FilesystemServiceProvider($this->app);
-        $provider->register();
+        $this->app->register($provider);
     }
 }
