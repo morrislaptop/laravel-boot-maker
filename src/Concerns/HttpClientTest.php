@@ -19,6 +19,6 @@ class HttpClientTest extends PartialTestCase
 
         $response = Http::get('http://example.com');
 
-        dump($response);
+        $this->assertTrue($response->ok());
     }
 }

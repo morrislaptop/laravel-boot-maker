@@ -31,6 +31,15 @@ class DatabaseTest extends PartialTestCase
         $this->assertNotNull(User::factory()->create());
     }
 
+    public function test_it_can_use_seeds()
+    {
+        $this->createUsersTable();
+
+        $this->seed();
+
+        $this->assertDatabaseCount('users', 11);
+    }
+
     protected function createUsersTable()
     {
         DB::statement('CREATE TABLE users (
