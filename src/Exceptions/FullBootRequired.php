@@ -6,5 +6,4 @@ use BadMethodCallException;
 
 class FullBootRequired extends BadMethodCallException
 {
-
 }

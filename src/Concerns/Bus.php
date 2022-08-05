@@ -3,7 +3,6 @@
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use Illuminate\Bus\BusServiceProvider;
-use Illuminate\Queue\QueueServiceProvider;
 
 trait Bus
 {

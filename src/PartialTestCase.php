@@ -2,12 +2,8 @@
 
 namespace Morrislaptop\LaravelBootMaker;
 
-use Illuminate\Foundation\Bootstrap\RegisterFacades;
 use Illuminate\Foundation\Testing\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\Str;
-use Tests\CreatesPartialApplication;
 
 abstract class PartialTestCase extends TestCase
 {

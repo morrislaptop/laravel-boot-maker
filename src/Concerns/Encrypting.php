@@ -3,9 +3,6 @@
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use Illuminate\Encryption\EncryptionServiceProvider;
-use Illuminate\Hashing\HashServiceProvider;
-use Illuminate\Mail\MailServiceProvider;
-use Illuminate\Queue\QueueServiceProvider;
 
 trait Encrypting
 {

@@ -3,7 +3,6 @@
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use Illuminate\Mail\MailServiceProvider;
-use Illuminate\Queue\QueueServiceProvider;
 
 trait Mail
 {

@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Inspiring;
 
 class Inspire extends Command
 {
@@ -28,6 +27,6 @@ class Inspire extends Command
      */
     public function handle()
     {
-        return $this->comment('An unexamined life is not worth living. - Socrates');;
+        return $this->comment('An unexamined life is not worth living. - Socrates');
     }
 }

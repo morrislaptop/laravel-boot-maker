@@ -4,7 +4,7 @@ namespace App;
 
 class Service
 {
-    public function process() {
-
+    public function process()
+    {
     }
 }

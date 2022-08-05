@@ -3,7 +3,6 @@
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use Illuminate\Cache\CacheServiceProvider;
-use Illuminate\Filesystem\FilesystemServiceProvider;
 
 trait Cache
 {

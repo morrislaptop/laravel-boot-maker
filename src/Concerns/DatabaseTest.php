@@ -1,13 +1,9 @@
 <?php
+
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
-use App\Events\QuestionCreated;
-use App\Listeners\AskQuestion;
 use App\Models\User;
-use Illuminate\Support\Facades\Cache as CacheFacade;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
-use Morrislaptop\LaravelBootMaker\Concerns\Events;
 use Morrislaptop\LaravelBootMaker\Tests\PartialTestCase;
 
 class DatabaseTest extends PartialTestCase

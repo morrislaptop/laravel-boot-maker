@@ -2,9 +2,7 @@
 
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
-use Illuminate\Mail\MailServiceProvider;
 use Illuminate\Notifications\NotificationServiceProvider;
-use Illuminate\Queue\QueueServiceProvider;
 
 trait Notifications
 {

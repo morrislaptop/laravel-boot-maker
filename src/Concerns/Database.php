@@ -2,10 +2,7 @@
 
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
-use App\Models\User;
-use Illuminate\Cache\CacheServiceProvider;
 use Illuminate\Database\DatabaseServiceProvider;
-use Illuminate\Filesystem\FilesystemServiceProvider;
 
 trait Database
 {

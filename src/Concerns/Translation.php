@@ -2,7 +2,6 @@
 
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
-use Illuminate\Filesystem\FilesystemServiceProvider;
 use Illuminate\Translation\TranslationServiceProvider;
 
 trait Translation

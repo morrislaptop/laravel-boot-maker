@@ -3,8 +3,6 @@
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use Illuminate\Log\LogServiceProvider;
-use Illuminate\Mail\MailServiceProvider;
-use Illuminate\Queue\QueueServiceProvider;
 
 trait Logging
 {

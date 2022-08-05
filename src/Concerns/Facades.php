@@ -3,8 +3,6 @@
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use Illuminate\Foundation\Bootstrap\RegisterFacades;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Facade;
 
 trait Facades
 {

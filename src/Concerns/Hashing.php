@@ -3,8 +3,6 @@
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use Illuminate\Hashing\HashServiceProvider;
-use Illuminate\Mail\MailServiceProvider;
-use Illuminate\Queue\QueueServiceProvider;
 
 trait Hashing
 {
