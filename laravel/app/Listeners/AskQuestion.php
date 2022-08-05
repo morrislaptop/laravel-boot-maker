@@ -26,6 +26,6 @@ class AskQuestion
      */
     public function handle(QuestionCreated $event)
     {
-        //
+        dump('handled');
     }
 }

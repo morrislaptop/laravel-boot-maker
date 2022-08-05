@@ -7,16 +7,16 @@ use Illuminate\Support\Facades\Event;
 use Morrislaptop\LaravelBootMaker\Concerns\Events;
 use Morrislaptop\LaravelBootMaker\Tests\FullTestCase;
 
-uses(
-    FullTestCase::class,
-);
-
 /**
  * Use this scratch pad to test "full" Laravel features, then
  * copy over to the relevant Concern test to see if it
  * works in isolation.
  */
-it('works with a fully buited Laravel', function () {
-    Cache::put('question', 42);
-    expect(Cache::get('question'))->toBe(42);
-});
+class ScratchPadFullTest extends FullTestCase
+{
+    function test_works()
+    {
+        Cache::put('question', 42);
+        $this->assertEquals(42, Cache::get('question'));
+    }
+}
