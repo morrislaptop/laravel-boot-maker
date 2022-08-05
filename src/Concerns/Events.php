@@ -10,6 +10,9 @@ trait Events
 {
     protected function setUpEvents()
     {
+        // load these providers directly instead of traits
+        // as the traits load Config as well, which
+        // isn't required for Events.
         $files = new FilesystemServiceProvider($this->app);
         $this->app->register($files);
 

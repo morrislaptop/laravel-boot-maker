@@ -12,8 +12,7 @@ use Morrislaptop\LaravelBootMaker\Tests\PartialTestCase;
 
 class HttpClientTest extends PartialTestCase
 {
-    use HttpClient;
-
+    // this works out of the box, leaving test for proof.
     public function test_it_can_test_http_client()
     {
         Http::fake();
