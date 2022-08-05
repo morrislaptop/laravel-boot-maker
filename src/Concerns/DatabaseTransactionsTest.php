@@ -25,7 +25,7 @@ class DatabaseTransactionsTest extends PartialTestCase
         ]));
 
         $this->beforeApplicationDestroyed(function () {
-            $tables = DB::select('SELECT name FROM sqlite_schema');
+            $tables = DB::select('SELECT name FROM sqlite_master');
             $this->assertEmpty($tables);
         });
     }
