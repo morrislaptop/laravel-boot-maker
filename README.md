@@ -66,6 +66,10 @@ abstract class PartialTestCase extends BasePartialTestCase
 It's recommended to get the tests passing using the full `TestCase` first, and then 
 drop down to `PartialTestCase` and select only the Laravel features you need.
 
+> This approach ensures you're only using the Laravel features 
+> you think are using, which might be useful if trying to 
+> decouple from the framework bit.
+
 ```php
 <?php
 
@@ -96,9 +100,8 @@ class QuestionCreatedTest extends PartialTestCase
 
 For a full list of features to enable, see [src/Concerns](src/Concerns/);
 
-> This approach ensures you're only using the Laravel features 
-> you think are using, which might be useful if trying to 
-> decouple from the framework bit. 
+You can easily create your own Concerns by including it in a TestCase and ensuring
+it has the `setUpXXXX` and `tearDownXXXX` methods.  
 
 ## Testing
 

@@ -40,9 +40,5 @@ abstract class PartialTestCase extends TestCase
                     $this->beforeApplicationDestroyed(fn () => $this->{$method}());
                 }
             });
-
-        // if (isset($uses[WithFaker::class])) {
-        //     $this->setUpFaker();
-        // }
     }
 }
