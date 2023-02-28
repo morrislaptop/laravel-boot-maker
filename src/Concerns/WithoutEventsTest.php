@@ -17,7 +17,7 @@ class WithoutEventsTest extends PartialTestCase
             $this->markTestSkipped('WithoutEvents removed in Laravel 10. https://laravel.com/docs/10.x/upgrade#service-mocking');
         }
 
-        parent::setUpTraits();
+        return parent::setUpTraits();
     }
 
     public function test_it_can_test_without_events()
