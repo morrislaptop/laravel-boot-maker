@@ -19,7 +19,6 @@ class AskQuestion
     /**
      * Handle the event.
      *
-     * @param  \App\Events\QuestionCreated  $event
      * @return void
      */
     public function handle(QuestionCreated $event)
