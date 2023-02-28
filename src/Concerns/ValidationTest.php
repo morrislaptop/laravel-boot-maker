@@ -17,6 +17,6 @@ class ValidationTest extends PartialTestCase
         ]);
 
         $this->assertTrue($validator->fails());
-        $this->assertEquals(['body' => ['validation.required']], $validator->errors()->toArray());
+        $this->assertEquals(['body' => ['The body field is required.']], $validator->errors()->toArray());
     }
 }
