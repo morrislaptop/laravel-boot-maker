@@ -8,6 +8,6 @@ trait Facades
 {
     protected function setUpFacades()
     {
-        (new RegisterFacades())->bootstrap($this->app);
+        (new RegisterFacades)->bootstrap($this->app);
     }
 }

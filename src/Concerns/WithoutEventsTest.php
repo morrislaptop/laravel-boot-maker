@@ -28,7 +28,7 @@ class WithoutEventsTest extends PartialTestCase
             $answer = 42;
         });
 
-        event(new QuestionCreated());
+        event(new QuestionCreated);
 
         $this->assertNull($answer);
     }

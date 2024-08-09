@@ -8,7 +8,7 @@ trait SetRequestForConsole
 {
     protected function setUpSetRequestForConsole()
     {
-        $booter = new BootstrapSetRequestForConsole();
+        $booter = new BootstrapSetRequestForConsole;
         $booter->bootstrap($this->app);
     }
 }
