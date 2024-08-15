@@ -4,6 +4,4 @@ namespace Morrislaptop\LaravelBootMaker\Exceptions;
 
 use BadMethodCallException;
 
-class FullBootRequired extends BadMethodCallException
-{
-}
+class FullBootRequired extends BadMethodCallException {}

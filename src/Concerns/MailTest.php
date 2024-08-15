@@ -15,14 +15,14 @@ class MailTest extends PartialTestCase
     {
         MailFacade::fake();
 
-        MailFacade::to('taylor@laravel.com')->send(new OrderShipped());
+        MailFacade::to('taylor@laravel.com')->send(new OrderShipped);
 
         MailFacade::assertSent(OrderShipped::class);
     }
 
     public function test_mailable_content()
     {
-        $mailable = new OrderShipped();
+        $mailable = new OrderShipped;
 
         $mailable->assertSeeInHtml('Order Shipped');
     }

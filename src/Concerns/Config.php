@@ -8,7 +8,7 @@ trait Config
 {
     protected function setUpConfig()
     {
-        $booter = new LoadConfiguration();
+        $booter = new LoadConfiguration;
         $booter->bootstrap($this->app);
     }
 }

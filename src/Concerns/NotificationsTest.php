@@ -14,10 +14,10 @@ class NotificationsTest extends PartialTestCase
     public function test_it_can_test_notifications()
     {
         Notification::fake();
-        $user = new User();
+        $user = new User;
 
         // Perform order shipping...
-        Notification::send($user, new OrderDelivered());
+        Notification::send($user, new OrderDelivered);
 
         // Assert that no notifications were sent...
         Notification::assertSentTo($user, OrderDelivered::class);
