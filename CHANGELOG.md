@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-boot-maker` will be documented in this file.
 
+## v0.4.0 - 2025-04-07
+
+### What's Changed
+
+* feat!: laravel 12 by @ekvedaras in https://github.com/morrislaptop/laravel-boot-maker/pull/25
+
+### New Contributors
+
+* @ekvedaras made their first contribution in https://github.com/morrislaptop/laravel-boot-maker/pull/25
+
+**Full Changelog**: https://github.com/morrislaptop/laravel-boot-maker/compare/v0.3.0...v0.4.0
+
 ## v0.3.0 - 2024-08-09
 
 ### What's Changed
