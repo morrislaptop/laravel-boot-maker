@@ -3,12 +3,29 @@
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use App\Models\User;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Support\Facades\DB;
 use Morrislaptop\LaravelBootMaker\Tests\PartialTestCase;
 
 class DatabaseTest extends PartialTestCase
 {
     use Database;
+
+    protected function setUp(): void
+    {
+        set_error_handler(fn () => false);
+        set_exception_handler(fn () => false);
+
+        parent::setUp();
+    }
+
+    protected function tearDown(): void
+    {
+        restore_error_handler();
+        restore_exception_handler();
+
+        parent::tearDown();
+    }
 
     public function test_it_can_test_database()
     {
@@ -31,7 +48,7 @@ class DatabaseTest extends PartialTestCase
     {
         $this->createUsersTable();
 
-        $this->seed();
+        $this->app->make(DatabaseSeeder::class)->run();
 
         $this->assertDatabaseCount('users', 11);
     }
