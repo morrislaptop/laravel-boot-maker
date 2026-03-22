@@ -10,6 +10,22 @@ class DatabaseTest extends PartialTestCase
 {
     use Database;
 
+    protected function setUp(): void
+    {
+        set_error_handler(fn () => false);
+        set_exception_handler(fn () => false);
+
+        parent::setUp();
+    }
+
+    protected function tearDown(): void
+    {
+        restore_error_handler();
+        restore_exception_handler();
+
+        parent::tearDown();
+    }
+
     public function test_it_can_test_database()
     {
         $this->createUsersTable();
