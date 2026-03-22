@@ -3,6 +3,7 @@
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use App\Models\User;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Support\Facades\DB;
 use Morrislaptop\LaravelBootMaker\Tests\PartialTestCase;
 
@@ -47,7 +48,7 @@ class DatabaseTest extends PartialTestCase
     {
         $this->createUsersTable();
 
-        $this->seed();
+        $this->app->make(DatabaseSeeder::class)->run();
 
         $this->assertDatabaseCount('users', 11);
     }
