@@ -2,6 +2,12 @@
 
 All notable changes to `laravel-boot-maker` will be documented in this file.
 
+## v0.5.0 - 2026-03-22
+
+- Laravel 13
+- PHP >= 8.3
+- Test with PHP 8.5
+
 ## v0.4.0 - 2025-04-07
 
 ### What's Changed
