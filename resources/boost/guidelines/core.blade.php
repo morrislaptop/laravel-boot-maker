@@ -11,9 +11,10 @@ saving on a test that never touches the database.
   `createApplication()` without bootstrapping it.
 - Each test names the pieces it needs with a concern trait from
   `Morrislaptop\LaravelBootMaker\Concerns\`. Use the fewest that make it pass.
-- `RefreshDatabase`, `DatabaseMigrations`, `Routes`, `Console` and `WithoutMiddleware`
-  throw `FullBootRequired` on purpose. A test needing one of those stays on the full
-  `TestCase`.
+- HTTP requests, authentication, artisan commands and migrations all work partially
+  booted: `Routes`, `Auth`, `Console`, `RefreshDatabase`, `DatabaseMigrations`.
+- `Routes` runs no middleware. A test asserting on middleware behaviour, or on a
+  binding only a full boot can build, stays on the full `TestCase`.
 
 @verbatim
 <code-snippet name="A test that only needs the translator" lang="php">
