@@ -2,7 +2,7 @@
 
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
-use FullBootRequired;
+use Morrislaptop\LaravelBootMaker\Exceptions\FullBootRequired;
 
 trait Console
 {
