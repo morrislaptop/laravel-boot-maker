@@ -11,7 +11,8 @@ jobs:
   test:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      # A compatibility matrix is only useful if one broken cell does not hide the other 35.
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         php: [8.3, 8.4, 8.5]
@@ -37,9 +38,15 @@ jobs:
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
       - name: Install dependencies
+        # bash on every runner, because PowerShell drops the caret out of "^12.1.1" and
+        # Composer then reads it as an exact pin. That pin resolves to a release with
+        # security advisories against it, which Composer refuses to install, so the
+        # Windows cells failed before a test ever ran.
+        shell: bash
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
       - name: Execute tests
+        shell: bash
         run: vendor/bin/phpunit

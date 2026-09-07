@@ -103,6 +103,19 @@ For a full list of features to enable, see [src/Concerns](src/Concerns/);
 You can easily create your own Concerns by including it in a TestCase and ensuring
 it has the `setUpXXXX` and `tearDownXXXX` methods.  
 
+## AI agents
+
+This package ships [Laravel Boost](https://laravel.com/framework/docs/boost) resources, so
+agents working in an app that installs it know how to use it without being told:
+
+- `resources/boost/guidelines/core.blade.php` — a short always-loaded note on the base class
+  and the concern convention.
+- `resources/boost/skills/partial-boot-testing/` — an on-demand skill with the conversion
+  workflow, an error-to-concern table, and what each concern registers.
+
+Users pick these up with `php artisan boost:install`, or `php artisan boost:update --discover`
+in an app that already has Boost.
+
 ## Testing
 
 ```bash
