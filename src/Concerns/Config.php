@@ -6,6 +6,8 @@ use Illuminate\Foundation\Bootstrap\LoadConfiguration;
 
 trait Config
 {
+    use Environment;
+
     protected function setUpConfig()
     {
         $booter = new LoadConfiguration;
