@@ -98,6 +98,78 @@ class QuestionCreatedTest extends PartialTestCase
 }
 ```
 
+### HTTP requests and authentication
+
+`$this->get()` boots everything, because it goes through the application's HTTP kernel.
+`Routes` swaps that kernel for one with no bootstrappers and no middleware, so requests
+dispatch straight to the route:
+
+```php
+use Morrislaptop\LaravelBootMaker\Concerns\Auth;
+use Morrislaptop\LaravelBootMaker\Concerns\Routes;
+use Tests\PartialTestCase;
+
+class ProfileTest extends PartialTestCase
+{
+    use Auth, Routes;
+
+    public function test_it_shows_the_current_user()
+    {
+        $this->actingAs(new User(['name' => 'Bob']));
+
+        $this->get('/me')->assertOk()->assertSee('Bob');
+    }
+}
+```
+
+The exception handler still runs: a missing route is a 404, a failed validation a 422.
+
+**Middleware does not run.** It is defined by the real kernel and wants sessions, cookies
+and CSRF, so assert on middleware from the full `TestCase`.
+
+Route files run application code, so a route test often needs concerns it does not appear
+to use. Add whatever the failure names.
+
+`Auth` registers the guard directly, which is enough for `actingAs()` and
+`$request->user()`. Looking a user up by id also needs `Database`.
+
+Providers no concern covers go on your own base test case, where `Routes` and `Console`
+pick them up. Nothing else registers them: a provider has prerequisites of its own, and a
+test that runs no application code should not pay for one.
+
+```php
+abstract class PartialTestCase extends BasePartialTestCase
+{
+    use CreatesPartialApplication;
+
+    protected function additionalProviders(): array
+    {
+        return [\Inertia\ServiceProvider::class, \App\Providers\MacrosServiceProvider::class];
+    }
+}
+```
+
+That base class is also where you override `eventServiceProvider()`.
+
+### Commands and migrations
+
+`Console` marks the application as bootstrapped without running a bootstrapper, so
+`$this->artisan()` works. `RefreshDatabase` and `DatabaseMigrations` build on it.
+
+Laravel 11 registers an application's commands from a callback only a full boot fires, so
+name the ones the test runs:
+
+```php
+protected function consoleCommands(): array
+{
+    return [\App\Console\Commands\PruneProductTags::class];
+}
+```
+
+The schedule comes from that same callback and would read as empty, so resolving it throws
+`FullBootRequired`. These are also not a drop-in for an application overriding
+`refreshTestDatabase()` — they run `migrate:fresh` and skip it.
+
 For a full list of features to enable, see [src/Concerns](src/Concerns/);
 
 You can easily create your own Concerns by including it in a TestCase and ensuring

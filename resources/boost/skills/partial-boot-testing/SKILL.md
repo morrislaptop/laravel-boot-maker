@@ -59,14 +59,15 @@ Work one file at a time. Do not guess the concerns up front — let the failure 
 
 ## When a test cannot be converted
 
-These concerns throw `FullBootRequired` deliberately: `RefreshDatabase`,
-`DatabaseMigrations`, `Routes`, `Console`, `WithoutMiddleware`. A test that needs one
-of them stays on the full `TestCase`.
+Three things stay on the full `TestCase`: a test asserting on **middleware** (auth
+redirects, throttling, CSRF), a test reading the **schedule**, and code reaching a binding
+only an application or package provider registers when that provider cannot be built
+partially — a model calling into Nova, a Filament/Livewire page. Try listing the provider
+in `additionalProviders()` first.
 
-In practice that means anything which calls `route()` or generates a URL, sends an
-HTTP request, runs `$this->artisan()`, reads or writes real rows, renders a
-Filament/Livewire/Nova page, or resolves a binding that only an application service
-provider registers. Roughly a quarter of candidates fall here.
+Everything else has a concern, including HTTP requests (`Routes`), authentication (`Auth`),
+commands (`Console`) and migrations (`RefreshDatabase`, `DatabaseMigrations`). A command
+test must name its command in `consoleCommands()`.
 
 Helpers are a subtler blocker: a helper method defined on the app's own `TestCase` is
 unreachable from `PartialTestCase`. Move it into a trait both can use, rather than
@@ -78,6 +79,10 @@ copying it.
   handler swallows PHP deprecations. A partial boot has no such handler, so real
   pre-existing deprecations in the source become visible. Fix the source; they were
   not caused by the conversion.
+- **A 500 in a route test does not look like one.** The application's error page still
+  renders, so a test that never asserts a status fails later on a confusing assertion.
+  Assert `->assertOk()` first while converting, and `dump()` the response to see the
+  real cause.
 - **`Database` is what binds Faker.** `DatabaseServiceProvider` binds
   `Faker\Generator`, so a model factory failing with `Unknown format "uuid"` needs
   `Database`, not `WithFaker`.
