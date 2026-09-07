@@ -2,6 +2,32 @@
 
 All notable changes to `laravel-boot-maker` will be documented in this file.
 
+## v0.6.0 - 2026-09-07
+
+Agent-facing docs, and two concerns that could not run.
+
+### What's Changed
+
+* feat: ship Laravel Boost guidelines and a `partial-boot-testing` skill by @ekvedaras in https://github.com/morrislaptop/laravel-boot-maker/pull/38
+* fix: fall back to the framework's `EventServiceProvider` when the app has none by @ekvedaras in https://github.com/morrislaptop/laravel-boot-maker/pull/38
+* fix: import `FullBootRequired` from its own namespace in the `Console` concern by @ekvedaras in https://github.com/morrislaptop/laravel-boot-maker/pull/38
+* ci: run the matrix through bash so the Laravel caret survives on Windows by @ekvedaras in https://github.com/morrislaptop/laravel-boot-maker/pull/38
+
+### Laravel Boost
+
+The package now ships its own [Boost](https://laravel.com/framework/docs/boost#third-party-package-skills) resources, so an agent working in an app that installs it knows the workflow instead of guessing at concerns:
+
+* `resources/boost/guidelines/core.blade.php` — always loaded, short: the base class, the concern convention, and which concerns refuse on purpose.
+* `resources/boost/skills/partial-boot-testing/` — on demand: the one-file-at-a-time conversion loop, when a test cannot be converted, and the error-to-concern table.
+
+Existing Boost users pick these up with `php artisan boost:update --discover`.
+
+### Upgrading
+
+No breaking changes. Nothing to do beyond `composer update`, plus `boost:update --discover` if you want the agent resources.
+
+**Full Changelog**: https://github.com/morrislaptop/laravel-boot-maker/compare/v0.5.0...v0.6.0
+
 ## v0.5.0 - 2026-03-22
 
 - Laravel 13
