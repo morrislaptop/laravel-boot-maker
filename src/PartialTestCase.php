@@ -3,6 +3,7 @@
 namespace Morrislaptop\LaravelBootMaker;
 
 use App\Providers\EventServiceProvider as AppProvidersEventServiceProvider;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Events\EventServiceProvider as FrameworkEventServiceProvider;
 use Illuminate\Foundation\Testing\TestCase;
 use Illuminate\Support\Facades\Facade;
@@ -29,6 +30,27 @@ abstract class PartialTestCase extends TestCase
         parent::refreshApplication();
 
         Facade::setFacadeApplication($this->app);
+
+        $this->failOnFacadeBuiltFromGlobalAlias();
+    }
+
+    /**
+     * A full boot anywhere earlier in the process aliases `Auth`, `DB` and the rest as
+     * global classes, and that alias outlives the application it came from. PHP matches
+     * class names case insensitively, so the container then answers an unbound `auth`
+     * by building `Illuminate\Support\Facades\Auth` itself. The test that missed a
+     * concern sees `Call to undefined method` instead of the missing binding, and only
+     * when something else ran first.
+     */
+    private function failOnFacadeBuiltFromGlobalAlias(): void
+    {
+        $this->app->resolving(function (mixed $instance) {
+            if ($instance instanceof Facade) {
+                throw new BindingResolutionException(
+                    'Nothing is bound for ['.$instance::class.']. Use the concern that binds it.'
+                );
+            }
+        });
     }
 
     /**
