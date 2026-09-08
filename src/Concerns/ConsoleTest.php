@@ -46,7 +46,7 @@ class ConsoleTest extends PartialTestCase
 
     public function test_it_registers_and_boots_additional_providers()
     {
-        $this->assertTrue($this->app['partial-test-provider-booted']);
+        $this->assertSame(1, $this->app['partial-test-provider-booted']);
     }
 
     protected function additionalProviders(): array

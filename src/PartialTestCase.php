@@ -18,7 +18,9 @@ abstract class PartialTestCase extends TestCase
         Concerns\Facades::class,
         Concerns\Events::class,
         '*',
-        // These two run application code, so they go after every other concern.
+        // A provider expects every other concern's bindings to be in place, and the
+        // last two run application code, so all three go after everything else.
+        Concerns\AdditionalProviders::class,
         Concerns\Console::class,
         Concerns\Routes::class,
     ];
@@ -73,8 +75,9 @@ abstract class PartialTestCase extends TestCase
 
     /**
      * Providers no concern covers, which a route, controller or command reaches for.
-     * Only `Routes` and `Console` register these: a provider has prerequisites of its
-     * own, so a test that runs no application code should not pay for one.
+     * Only `AdditionalProviders`, `Routes` and `Console` register these: a provider has
+     * prerequisites of its own, so a test that asks for none of the three does not pay
+     * for one.
      *
      * @return array<int, string|ServiceProvider>
      */
