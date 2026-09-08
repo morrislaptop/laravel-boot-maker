@@ -56,6 +56,14 @@ Work one file at a time. Do not guess the concerns up front — let the failure 
 5. Stop after about four attempts. Some tests need the whole framework; that is a
    fine answer, revert the file and move on.
 6. Compare the `Time:` line before and after. Keep the change only if it is faster.
+7. Run the **whole suite in one process** before keeping the conversion. A converted
+   file that passes alone can still fail among the rest: a full boot earlier in the
+   process leaves global state behind, and a `Database` test with no transaction
+   writes rows the tests after it read. Per-file green is not evidence.
+
+Expect 3x to 10x on a converted file and much less on the suite: in a real 1543-test
+run, converting 16 of 152 files took 9 minutes to 8m46s, 2.6%. The slowest files are the
+ones that resist conversion. Quote the suite number, not the per-file one.
 
 ## When a test cannot be converted
 
@@ -69,11 +77,15 @@ Everything else has a concern, including HTTP requests (`Routes`), authenticatio
 commands (`Console`) and migrations (`RefreshDatabase`, `DatabaseMigrations`). A command
 test must name its command in `consoleCommands()`.
 
-Helpers are a subtler blocker: a helper method defined on the app's own `TestCase` is
-unreachable from `PartialTestCase`. Move it into a trait both can use, rather than
-copying it.
+Two more blockers are the application's shape, not the package's limits. In that
+1543-test suite they blocked far more files than anything above:
 
-## Two things that surprise people
+- **A shared domain base class** (48 of 152 files). Converting one file means converting
+  the base, so the group is all or nothing. Do the base or leave the group alone.
+- **Helpers on the app's own `TestCase`** (9 files), which are unreachable from
+  `PartialTestCase`. Move them into a trait both can use rather than copying them.
+
+## Things that surprise people
 
 - **Deprecations appear.** The full boot installs `HandleExceptions`, whose error
   handler swallows PHP deprecations. A partial boot has no such handler, so real
@@ -83,6 +95,10 @@ copying it.
   renders, so a test that never asserts a status fails later on a confusing assertion.
   Assert `->assertOk()` first while converting, and `dump()` the response to see the
   real cause.
+- **`Database` alone commits.** It binds the connection and nothing that rolls back, so
+  a test that writes leaves its rows behind — silently, and in a shared test database
+  that breaks whatever runs next. Pair it with `DatabaseTransactions` or
+  `RefreshDatabase` unless the test only reads.
 - **`Database` is what binds Faker.** `DatabaseServiceProvider` binds
   `Faker\Generator`, so a model factory failing with `Unknown format "uuid"` needs
   `Database`, not `WithFaker`.

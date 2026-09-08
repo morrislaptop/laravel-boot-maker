@@ -1,8 +1,9 @@
 ## Laravel Boot Maker
 
 This package boots only the parts of Laravel a test needs, instead of registering every
-service provider. Boot is most of what a unit test costs, so this is usually a 10x to 20x
-saving on a test that never touches the database.
+service provider. Boot is most of what a unit test costs, so a converted file usually runs
+3x to 10x faster. The suite total moves much less, because the slowest files are the ones
+that resist conversion: a real 1543-test suite gained 2.6% from converting 16 of 152 files.
 
 ### Conventions
 
@@ -13,6 +14,10 @@ saving on a test that never touches the database.
   `Morrislaptop\LaravelBootMaker\Concerns\`. Use the fewest that make it pass.
 - HTTP requests, authentication, artisan commands and migrations all work partially
   booted: `Routes`, `Auth`, `Console`, `RefreshDatabase`, `DatabaseMigrations`.
+- `Routes`, `Console` and `AdditionalProviders` register `additionalProviders()`. A test
+  needing a package's binding but making no request uses `AdditionalProviders`.
+- `Database` on its own commits. Pair it with `DatabaseTransactions` or `RefreshDatabase`
+  unless the test only reads.
 - `Routes` runs no middleware. A test asserting on middleware behaviour, or on a
   binding only a full boot can build, stays on the full `TestCase`.
 
@@ -29,5 +34,6 @@ final class PaymentTypeTest extends PartialTestCase
 @endverbatim
 
 When converting an existing test, add no concerns first, run the file, and add the one
-concern the error names. Use the `partial-boot-testing` skill for the full workflow and
-the error-to-concern table.
+concern the error names. Then run the whole suite in one process: a converted file that
+passes alone can still fail among the rest. Use the `partial-boot-testing` skill for the
+full workflow and the error-to-concern table.

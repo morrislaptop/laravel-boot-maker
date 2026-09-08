@@ -9,6 +9,9 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Target class [config] does not exist`, or `config()` returns null | `Config` |
 | `Target class [translator]`, or a translation key comes back untranslated | `Translation` |
 | `Target class [db]`, any Eloquent relation error, `Unknown format "uuid"` from a factory | `Database` |
+| `Target class [request]` | `SetRequestForConsole` |
+| `Class "Context" not found` | `Facades` |
+| `Target class [session.store]` | `Auth`, which registers the session — not a session concern |
 | `Target class [validator]` | `Validation` |
 | `Target class [view]` | `Views` |
 | `Target class [cache]` | `Cache` |
@@ -29,6 +32,9 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `no such table` | `RefreshDatabase` or `DatabaseMigrations` |
 | `Target [X] is not instantiable` while building a listener | override `eventServiceProvider()` |
 | A route or command needs a package's provider (Inertia macros, localisation, auditing) | list it in `additionalProviders()` |
+| `Target [SomeContract] is not instantiable` naming a package's class (auditing, Livewire, Filament) | list that package's provider in `additionalProviders()`, with `AdditionalProviders` if the test makes no request and runs no command |
+| `Fatal error: Cannot use ... as Auth because the name is already in use` | alias the concern, not the facade |
+| `Nothing is bound for [Illuminate\Support\Facades\Auth]`, only when other tests run first | the concern that binds it: a full boot earlier in the process aliased the facade as a global class, and the container would otherwise build the facade itself |
 
 ## What each registers
 
@@ -42,7 +48,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Translation` | `TranslationServiceProvider` | `Filesystem` |
 | `Validation` | `ValidationServiceProvider`, `FoundationServiceProvider` for the `$request->validate()` macro, and a booted `FormRequestServiceProvider` | `Translation` |
 | `Views` | `ViewServiceProvider` | `Filesystem` |
-| `Database` | `DatabaseServiceProvider` | `Config` |
+| `Database` | `DatabaseServiceProvider`. **On its own it commits**: pair it with `DatabaseTransactions` or `RefreshDatabase` unless the test only reads | `Config` |
 | `Cache` | `CacheServiceProvider` | `Config` |
 | `Logging` | `LogServiceProvider` | `Config` |
 | `Hashing` | `HashServiceProvider` | `Config` |
@@ -52,6 +58,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Mail` | `MailServiceProvider` | `Config`, `Views` |
 | `Notifications` | `NotificationServiceProvider` | — |
 | `Events` | `FilesystemServiceProvider`, `CacheServiceProvider`, and the app's `App\Providers\EventServiceProvider` if it has one, else the framework's | — |
+| `AdditionalProviders` | `additionalProviders()` | — |
 | `Routes` | `RoutingServiceProvider`, `additionalProviders()`, the app's route provider, and a `PartialHttpKernel` | `Config`, `Events`, `Facades`, `SetRequestForConsole`, `Views` |
 | `Auth` | `CookieServiceProvider`, `SessionServiceProvider`, `AuthServiceProvider` | `Config`, `Events`, `Hashing`, `SetRequestForConsole` |
 | `Console` | marks the app bootstrapped without bootstrapping, plus `ConsoleSupportServiceProvider`, `additionalProviders()` and `consoleCommands()` | `Config`, `Events`, `Facades` |
@@ -62,6 +69,26 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 
 Because concerns pull in others, name only the one you need: `Validation` already gives
 you `Translation` and `Filesystem`.
+
+**`Database` alone writes for real.** Nothing in it rolls anything back, so a test that
+saves leaves its rows in the test database with no error and no warning, and whatever
+runs next reads them. That is the right behaviour for a read-only or in-memory test and a
+trap for any other, so add `DatabaseTransactions` or `RefreshDatabase` the moment a test
+writes.
+
+## Trait names collide with facade names
+
+`use Morrislaptop\LaravelBootMaker\Concerns\Auth;` next to
+`use Illuminate\Support\Facades\Auth;` is a PHP fatal at compile time, not a test
+failure: `Cannot use ... as Auth because the name is already in use`. The same goes for
+`Cache`, `Mail`, `Queues`, `Bus`, `Events`, `Notifications` and `Validation`.
+
+Alias the concern, never the facade, so the facade calls in the body still read as usual:
+
+```php
+use Illuminate\Support\Facades\Auth;
+use Morrislaptop\LaravelBootMaker\Concerns\Auth as AuthConcern;
+```
 
 ## Hooks
 
@@ -99,10 +126,14 @@ protected function additionalProviders(): array
 }
 ```
 
-Only `Routes` and `Console` register these, after every other concern has run. A provider
-has prerequisites of its own — one adding a request macro needs `request` bound — so a test
-that runs no application code should not pay for one. Expect the concern list of a `Routes`
-or `Console` test to grow to satisfy the providers rather than the test itself.
+`Routes`, `Console` and `AdditionalProviders` register these, after every other concern has
+run. A provider has prerequisites of its own — one adding a request macro needs `request`
+bound — so a test naming none of the three does not pay for one. Expect the concern list of
+a `Routes` or `Console` test to grow to satisfy the providers rather than the test itself.
+
+Use `AdditionalProviders` when a test needs a package's binding but makes no request and
+runs no command: a unit test saving an audited model needs the auditing provider and
+nothing else. Adding `Routes` to reach the same binding costs a boot the test never uses.
 
 A package whose config its provider merges needs listing even when the application has
 published that config: the published file is usually only part of it.
@@ -159,9 +190,11 @@ report it empty and quietly pass a test asserting nothing is scheduled. Resolvin
 for an application overriding `refreshTestDatabase()` to cache a migration checksum or
 seed: they run `migrate:fresh` and skip it. Compose your own trait instead.
 
-The gain scales with how many providers your application boots: a real application measured
-4.6x and 7.5x on command tests, a bare fixture app only 1.6x. Migration-heavy tests gain
-least, around 1.4x, since running the migrations dominates.
+The gain scales with how many providers your application boots, so command tests can be the
+strongest case of all: a real application measured 2.01s to 0.37s, 2.18s to 0.36s and 3.89s
+to 0.93s, its best ratios anywhere. A bare fixture app with almost no providers manages only
+1.6x, which is a fact about the fixture. Migration-heavy tests gain least, around 1.4x,
+since running the migrations dominates.
 
 ## What still needs a full boot
 

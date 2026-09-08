@@ -13,7 +13,9 @@ It's likely that you're not using all the features for each test, slowing down y
 test suite considerably. 
 
 This package allows you to "opt in" to boot just the Laravel features you need for 
-your test to pass. Your test will run much quicker as a result. 
+your test to pass. A converted file typically runs 3x to 10x faster. The suite total moves
+much less: the slowest files are usually the ones that resist conversion, and a real
+1543-test suite gained 2.6% from converting 16 of its 152 files.
 
 ## Installation
 
@@ -133,9 +135,11 @@ to use. Add whatever the failure names.
 `Auth` registers the guard directly, which is enough for `actingAs()` and
 `$request->user()`. Looking a user up by id also needs `Database`.
 
-Providers no concern covers go on your own base test case, where `Routes` and `Console`
-pick them up. Nothing else registers them: a provider has prerequisites of its own, and a
-test that runs no application code should not pay for one.
+Providers no concern covers go on your own base test case, where `Routes`, `Console` and
+`AdditionalProviders` pick them up. Nothing else registers them: a provider has
+prerequisites of its own, and a test naming none of the three should not pay for one. Reach
+for `AdditionalProviders` when a test needs a package's binding but makes no request and
+runs no command, rather than adding `Routes` for a boot it never uses.
 
 ```php
 abstract class PartialTestCase extends BasePartialTestCase
@@ -169,6 +173,17 @@ protected function consoleCommands(): array
 The schedule comes from that same callback and would read as empty, so resolving it throws
 `FullBootRequired`. These are also not a drop-in for an application overriding
 `refreshTestDatabase()` — they run `migrate:fresh` and skip it.
+
+### Two traps
+
+`Database` on its own binds the connection and nothing that rolls back, so a test that
+writes commits, silently, into whatever database the suite shares. That is what a read-only
+or in-memory test wants; anything that writes needs `DatabaseTransactions` or
+`RefreshDatabase` alongside it.
+
+Run the whole suite in one process before keeping a conversion. A file that passes on its
+own can still fail among the rest, because a full boot earlier in the process leaves global
+state behind that a partial boot then inherits.
 
 For a full list of features to enable, see [src/Concerns](src/Concerns/);
 
