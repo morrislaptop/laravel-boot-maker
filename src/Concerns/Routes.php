@@ -5,6 +5,7 @@ namespace Morrislaptop\LaravelBootMaker\Concerns;
 use App\Providers\RouteServiceProvider as AppProvidersRouteServiceProvider;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as FrameworkRouteServiceProvider;
+use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Routing\RoutingServiceProvider;
 use Illuminate\Support\ServiceProvider;
 use Morrislaptop\LaravelBootMaker\PartialHttpKernel;
@@ -25,6 +26,12 @@ trait Routes
         // Middleware expects a full boot.
         $this->app->instance('middleware.disable', true);
         $this->app->singleton(HttpKernel::class, PartialHttpKernel::class);
+
+        // What `SubstituteBindings` does. It needs no full boot.
+        $this->app['events']->listen(function (RouteMatched $event) {
+            $this->app['router']->substituteBindings($event->route);
+            $this->app['router']->substituteImplicitBindings($event->route);
+        });
 
         // Not `$this->app->boot()`: that also runs every `bootstrap/app.php` callback.
         $this->bootProvider($this->app->register($this->routeServiceProvider(), force: true));

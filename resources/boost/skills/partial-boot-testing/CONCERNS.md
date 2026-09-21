@@ -25,6 +25,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Target class [mailer]` | `Mail` |
 | `A facade root has not been set` | `Facades` |
 | `$this->get()` returns 404, or `Target class [router]` | `Routes` |
+| `Target class [db]` from a route with a model parameter | `Database` |
 | `Target class [auth]`, `actingAs()` fails, `$request->user()` is null | `Auth` |
 | `$this->faker` is undefined | `WithFaker` |
 | An `env()` value reads as null | `Environment` |
@@ -61,7 +62,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Notifications` | `NotificationServiceProvider` | — |
 | `Events` | `FilesystemServiceProvider`, `CacheServiceProvider`, and the app's `App\Providers\EventServiceProvider` if it has one, else the framework's | — |
 | `AdditionalProviders` | `additionalProviders()` | `Config`, `Facades`, `SetRequestForConsole` |
-| `Routes` | `RoutingServiceProvider`, `additionalProviders()`, the app's route provider, and a `PartialHttpKernel` | `Config`, `Events`, `Facades`, `SetRequestForConsole`, `Views` |
+| `Routes` | `RoutingServiceProvider`, `additionalProviders()`, the app's route provider, and a `PartialHttpKernel`. Runs route model binding | `Config`, `Events`, `Facades`, `SetRequestForConsole`, `Views` |
 | `Auth` | `CookieServiceProvider`, `SessionServiceProvider`, `AuthServiceProvider` | `Config`, `Events`, `Hashing`, `SetRequestForConsole` |
 | `Console` | marks the app bootstrapped without bootstrapping, plus `ConsoleSupportServiceProvider`, `additionalProviders()` and `consoleCommands()` | `Config`, `Events`, `Facades` |
 | `RefreshDatabase` | Laravel's `RefreshDatabase` | `Console`, `Database` |
@@ -150,6 +151,7 @@ middleware. The exception handler still runs: a missing route is a 404, a
   concerns it does not seem to use. Read the error as "the route file needs this".
 - **Middleware does not run.** Test middleware on the full `TestCase`.
   `WithoutMiddleware` is not needed with `Routes`.
+- Route model binding still runs. A missing model is a 404.
 - `Auth` is enough for an in-memory user and `$request->session()`. To find a user by id,
   add `Database`.
 
@@ -176,6 +178,8 @@ protected function consoleCommands(): array
 ## What still needs a full boot
 
 - a test of **middleware**: auth redirects, throttling, CSRF
+- a test that reads data shared by middleware, for example Inertia's shared props from
+  `HandleInertiaRequests`. Under `Routes` it is absent
 - a test of the **schedule**
 - code that needs a provider which cannot boot partially, for example Nova. Try
   `additionalProviders()` first.

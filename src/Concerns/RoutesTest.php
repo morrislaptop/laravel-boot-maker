@@ -4,12 +4,13 @@ namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Morrislaptop\LaravelBootMaker\Tests\PartialTestCase;
 
 class RoutesTest extends PartialTestCase
 {
-    use Auth, Routes, Validation;
+    use Auth, Database, Routes, Validation;
 
     public function test_it_hits_a_route_defined_in_the_test()
     {
@@ -67,6 +68,16 @@ class RoutesTest extends PartialTestCase
         Route::get('/session', fn (Request $request) => $request->session()->getId());
 
         $this->get('/session')->assertOk()->assertSee($this->app['session.store']->getId());
+    }
+
+    public function test_it_binds_route_models()
+    {
+        DB::statement('CREATE TABLE users (name TEXT, email TEXT, created_at DATETIME, updated_at DATETIME)');
+        User::create(['name' => 'Bob', 'email' => 'bob@example.com']);
+        Route::get('/users/{user:email}', fn (User $user) => $user->name);
+
+        $this->get('/users/bob@example.com')->assertOk()->assertSee('Bob');
+        $this->get('/users/nobody@example.com')->assertNotFound();
     }
 
     protected function additionalProviders(): array

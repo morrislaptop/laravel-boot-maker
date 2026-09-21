@@ -121,6 +121,7 @@ class ProfileTest extends PartialTestCase
 ```
 
 - Errors still render: a missing route is a 404, a failed validation is a 422.
+- Route model binding works. A missing model is a 404. Add `Database` for it.
 - **Middleware does not run.** Test middleware on the full `TestCase`.
 - Route files run your code, so a route test can need concerns it does not seem to use.
   Add what the error names.
