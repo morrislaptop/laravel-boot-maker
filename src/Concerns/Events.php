@@ -18,8 +18,7 @@ trait Events
         $cache = new CacheServiceProvider($this->app);
         $this->app->register($cache);
 
-        // eventServiceProvider() lives on PartialTestCase because a trait method wins
-        // over an inherited one, so an override here would silently lose.
+        // Not defined here: a trait method would win over the user's override.
         $events = $this->eventServiceProvider();
         $this->app->register($events);
         $events->callBootingCallbacks();

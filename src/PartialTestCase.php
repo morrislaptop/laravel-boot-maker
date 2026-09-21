@@ -11,15 +11,14 @@ use Illuminate\Support\ServiceProvider;
 
 abstract class PartialTestCase extends TestCase
 {
-    /** `*` marks where the concerns not listed here sort. */
+    /** `*` is where unlisted concerns go. */
     private const concernOrder = [
         Concerns\Environment::class,
         Concerns\Config::class,
         Concerns\Facades::class,
         Concerns\Events::class,
         '*',
-        // A provider expects every other concern's bindings to be in place, and the
-        // last two run application code, so all three go after everything else.
+        // These run application code, which can need any other concern.
         Concerns\AdditionalProviders::class,
         Concerns\Console::class,
         Concerns\Routes::class,
@@ -37,12 +36,8 @@ abstract class PartialTestCase extends TestCase
     }
 
     /**
-     * A full boot anywhere earlier in the process aliases `Auth`, `DB` and the rest as
-     * global classes, and that alias outlives the application it came from. PHP matches
-     * class names case insensitively, so the container then answers an unbound `auth`
-     * by building `Illuminate\Support\Facades\Auth` itself. The test that missed a
-     * concern sees `Call to undefined method` instead of the missing binding, and only
-     * when something else ran first.
+     * An earlier full boot leaves global aliases like `Auth` behind. Class names are case
+     * insensitive, so an unbound `auth` would build the facade instead of failing.
      */
     private function failOnFacadeBuiltFromGlobalAlias(): void
     {
@@ -55,15 +50,7 @@ abstract class PartialTestCase extends TestCase
         });
     }
 
-    /**
-     * The application's own provider is preferred, since that is what maps its
-     * listeners. Laravel 11 and later do not ship one, so the framework's is the
-     * fallback: it binds the dispatcher and nothing else.
-     *
-     * Override this on your own base test case when yours lives elsewhere, or to
-     * force the framework's when the application's maps listeners whose dependencies
-     * only bind under a full boot.
-     */
+    /** Laravel 11 and later have no application provider, so fall back to the framework's. */
     protected function eventServiceProvider(): ServiceProvider
     {
         $provider = class_exists(AppProvidersEventServiceProvider::class)
@@ -74,10 +61,7 @@ abstract class PartialTestCase extends TestCase
     }
 
     /**
-     * Providers no concern covers, which a route, controller or command reaches for.
-     * Only `AdditionalProviders`, `Routes` and `Console` register these: a provider has
-     * prerequisites of its own, so a test that asks for none of the three does not pay
-     * for one.
+     * Registered only by `AdditionalProviders`, `Routes` and `Console`.
      *
      * @return array<int, string|ServiceProvider>
      */
@@ -87,9 +71,7 @@ abstract class PartialTestCase extends TestCase
     }
 
     /**
-     * Laravel 11 registers an application's commands from a callback only a full boot
-     * fires, so a test names the ones it runs. The partial boot builds those and no
-     * others, which is the point.
+     * Laravel 11 and later register application commands only on a full boot.
      *
      * @return array<int, string>
      */

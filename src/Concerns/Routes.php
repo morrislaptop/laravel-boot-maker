@@ -11,8 +11,7 @@ use Morrislaptop\LaravelBootMaker\PartialHttpKernel;
 
 trait Routes
 {
-    // Views: Laravel's response factory takes the view factory in its constructor, so even
-    // `response()->json()` and a JSON error response need it.
+    // Views: the response factory needs it, even for `response()->json()`.
     use Config, Events, Facades, SetRequestForConsole, Views;
 
     protected function setUpRoutes()
@@ -23,26 +22,20 @@ trait Routes
 
         $this->registerAdditionalProviders();
 
-        // Middleware is written for a fully booted framework, so skip it.
+        // Middleware expects a full boot.
         $this->app->instance('middleware.disable', true);
         $this->app->singleton(HttpKernel::class, PartialHttpKernel::class);
 
-        // Route files load from this provider's booted callbacks. Booting the
-        // container instead would replay every `bootstrap/app.php` callback with them.
+        // Not `$this->app->boot()`: that also runs every `bootstrap/app.php` callback.
         $this->bootProvider($this->app->register($this->routeServiceProvider(), force: true));
 
-        // Deferred by the provider to a callback only a full boot runs, and `route()`
-        // needs it.
+        // `route()` needs these. Laravel refreshes them only on a full boot.
         $routes = $this->app['router']->getRoutes();
         $routes->refreshNameLookups();
         $routes->refreshActionLookups();
     }
 
-    /**
-     * Laravel 11 and later route through the framework's provider, which replays the
-     * callback `bootstrap/app.php` gave it. Earlier applications ship their own.
-     * Override this when yours lives elsewhere.
-     */
+    /** Laravel 11 and later have no application provider, so fall back to the framework's. */
     protected function routeServiceProvider(): ServiceProvider
     {
         $provider = class_exists(AppProvidersRouteServiceProvider::class)

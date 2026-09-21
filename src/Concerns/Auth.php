@@ -15,8 +15,7 @@ trait Auth
         $this->setUpEvents();
         $this->setUpHashing();
 
-        // The session guard reads the user off the request and the session, and writes
-        // the remember me token to a cookie.
+        // The session guard needs these.
         $this->setUpSetRequestForConsole();
         $this->app->register(new CookieServiceProvider($this->app));
         $this->app->register(new SessionServiceProvider($this->app));

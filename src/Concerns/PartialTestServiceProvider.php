@@ -11,7 +11,7 @@ class PartialTestServiceProvider extends ServiceProvider
         $this->app->instance('partial-test-provider-registered', true);
     }
 
-    /** Counted, so a test using two concerns that register providers can prove it ran once. */
+    /** Counted, to prove it boots once. */
     public function boot()
     {
         $this->app->instance('partial-test-provider-booted', $this->app->bound('partial-test-provider-booted')

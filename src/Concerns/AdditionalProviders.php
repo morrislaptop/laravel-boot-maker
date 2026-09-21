@@ -4,7 +4,7 @@ namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 trait AdditionalProviders
 {
-    // Application and package providers routinely reach for the request and facades while booting.
+    // Providers often use the request and facades when they boot.
     use Config, Facades, SetRequestForConsole;
 
     protected function setUpAdditionalProviders()
