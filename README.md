@@ -13,9 +13,8 @@ It's likely that you're not using all the features for each test, slowing down y
 test suite considerably. 
 
 This package allows you to "opt in" to boot just the Laravel features you need for 
-your test to pass. A converted file typically runs 3x to 10x faster. The suite total moves
-much less: the slowest files are usually the ones that resist conversion, and a real
-1543-test suite gained 2.6% from converting 16 of its 152 files.
+your test to pass. Your test will run much quicker as a result. The suite total moves
+less than that, because the slowest files are usually the ones that resist conversion.
 
 ## Installation
 

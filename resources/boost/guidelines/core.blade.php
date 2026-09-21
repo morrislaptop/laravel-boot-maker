@@ -1,8 +1,8 @@
 ## Laravel Boot Maker
 
 This package boots only the parts of Laravel a test needs, instead of registering every
-service provider. Boot is most of what a unit test costs, so a converted file usually runs
-3x to 10x faster.
+service provider. Boot is most of what a unit test costs, so this is usually a 10x to 20x
+saving on a test that never touches the database.
 
 ### Conventions
 

@@ -61,8 +61,7 @@ Work one file at a time. Do not guess the concerns up front — let the failure 
    process leaves global state behind, and a `Database` test with no transaction
    writes rows the tests after it read. Per-file green is not evidence.
 
-Expect 3x to 10x on a converted file and much less on the suite: in a real 1543-test
-run, converting 16 of 152 files took 9 minutes to 8m46s, 2.6%. The slowest files are the
+Expect the suite to gain much less than a converted file: the slowest files are the
 ones that resist conversion. Quote the suite number, not the per-file one.
 
 ## When a test cannot be converted
@@ -77,12 +76,12 @@ Everything else has a concern, including HTTP requests (`Routes`), authenticatio
 commands (`Console`) and migrations (`RefreshDatabase`, `DatabaseMigrations`). A command
 test must name its command in `consoleCommands()`.
 
-Two more blockers are the application's shape, not the package's limits. In that
-1543-test suite they blocked far more files than anything above:
+Two more blockers are the application's shape, not the package's limits, and they often
+block more files than anything above:
 
-- **A shared domain base class** (48 of 152 files). Converting one file means converting
-  the base, so the group is all or nothing. Do the base or leave the group alone.
-- **Helpers on the app's own `TestCase`** (9 files), which are unreachable from
+- **A shared domain base class.** Converting one file means converting the base, so the
+  group is all or nothing. Do the base or leave the group alone.
+- **Helpers on the app's own `TestCase`**, which are unreachable from
   `PartialTestCase`. Move them into a trait both can use rather than copying them.
 
 ## Things that surprise people

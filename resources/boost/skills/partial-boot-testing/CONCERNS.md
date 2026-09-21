@@ -186,20 +186,17 @@ method still loads from there.
 report it empty and quietly pass a test asserting nothing is scheduled. Resolving
 `Schedule` throws `FullBootRequired` instead.
 
-`RefreshDatabase` and `DatabaseMigrations` were only ever blocked because they run
-`$this->artisan('migrate')`. Both now migrate partially booted. They are **not** a drop-in
+`RefreshDatabase` and `DatabaseMigrations` run `$this->artisan('migrate')`, so they build
+on `Console`. They are **not** a drop-in
 for an application overriding `refreshTestDatabase()` to cache a migration checksum or
 seed: they run `migrate:fresh` and skip it. Compose your own trait instead.
 
-The gain scales with how many providers your application boots, so command tests can be the
-strongest case of all: a real application measured 2.01s to 0.37s, 2.18s to 0.36s and 3.89s
-to 0.93s, its best ratios anywhere. A bare fixture app with almost no providers manages only
-1.6x, which is a fact about the fixture. Migration-heavy tests gain least, around 1.4x,
-since running the migrations dominates.
+The gain scales with how many providers your application boots, so command tests can gain
+as much as any. Migration-heavy tests gain least, since running the migrations dominates.
 
 ## What still needs a full boot
 
-Only the schedule guard throws `FullBootRequired` now. What is left is:
+Only the schedule guard throws `FullBootRequired`. What is left is:
 
 - a test asserting on **middleware** behaviour: auth redirects, throttling, CSRF
 - a test reading the **schedule**
