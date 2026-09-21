@@ -29,7 +29,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Target class [auth]`, `actingAs()` fails, `$request->user()` is null | `Auth` |
 | `$this->faker` is undefined | `WithFaker` |
 | An `env()` value reads as null | `Environment` |
-| `$this->artisan()` | `Console` |
+| `$this->artisan()` throws `FullBootRequired` | `Console` |
 | `The command "x" does not exist` | name it in `consoleCommands()` |
 | `no such table` | `RefreshDatabase` or `DatabaseMigrations` |
 | `Target [X] is not instantiable` while building a listener | override `eventServiceProvider()` |
@@ -171,6 +171,7 @@ protected function consoleCommands(): array
 ```
 
 - **The schedule is not available.** Resolving `Schedule` throws `FullBootRequired`.
+- `$this->seed()` runs the seeders directly, with no command. It needs `Database` only.
 - `RefreshDatabase` and `DatabaseMigrations` run `migrate:fresh`. They ignore an override
   of `refreshTestDatabase()`. If you need one, write your own trait.
 - Tests that run many migrations gain the least.

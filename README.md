@@ -174,6 +174,8 @@ protected function consoleCommands(): array
 ```
 
 - The schedule is not available. Resolving it throws `FullBootRequired`.
+- Without `Console`, `$this->artisan()` throws `FullBootRequired`.
+- `$this->seed()` runs the seeders directly. It needs `Database`, not `Console`.
 - Both run `migrate:fresh`. They ignore an override of `refreshTestDatabase()`.
 
 ### Two traps

@@ -4,10 +4,13 @@ namespace Morrislaptop\LaravelBootMaker;
 
 use App\Providers\EventServiceProvider as AppProvidersEventServiceProvider;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Events\EventServiceProvider as FrameworkEventServiceProvider;
 use Illuminate\Foundation\Testing\TestCase;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
+use Morrislaptop\LaravelBootMaker\Exceptions\FullBootRequired;
 
 abstract class PartialTestCase extends TestCase
 {
@@ -48,6 +51,26 @@ abstract class PartialTestCase extends TestCase
                 );
             }
         });
+    }
+
+    public function artisan($command, $parameters = [])
+    {
+        // Only `Console` marks the app bootstrapped. Otherwise the console kernel runs a full boot.
+        if (! $this->app->hasBeenBootstrapped()) {
+            throw new FullBootRequired('Without the `Console` concern a command runs a full boot. Add `Console`.');
+        }
+
+        return parent::artisan($command, $parameters);
+    }
+
+    /** Laravel runs `db:seed`, which needs `Console`. */
+    public function seed($class = 'Database\\Seeders\\DatabaseSeeder')
+    {
+        foreach (Arr::wrap($class) as $class) {
+            Model::unguarded(fn () => $this->app->make($class)->setContainer($this->app)->__invoke());
+        }
+
+        return $this;
     }
 
     /** Laravel 11 and later have no application provider, so fall back to the framework's. */

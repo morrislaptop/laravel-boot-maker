@@ -49,7 +49,7 @@ class DatabaseTest extends PartialTestCase
     {
         $this->createUsersTable();
 
-        $this->app->make(DatabaseSeeder::class)->run();
+        $this->seed(DatabaseSeeder::class);
 
         $this->assertDatabaseCount('users', 11);
     }
