@@ -76,6 +76,7 @@ The application's shape can also block a file:
 
 - **A shared base test class.** Convert the base and all its tests, or none.
 - **Helpers on the app's own `TestCase`.** Move them into a trait both base classes use.
+  This includes `setUp()` code that resets static state. Without it, tests leak state.
 
 ## Things that surprise people
 
