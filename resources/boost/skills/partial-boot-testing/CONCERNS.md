@@ -12,6 +12,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Target class [request]` | `SetRequestForConsole` |
 | `Class "Context" not found` | `Facades` |
 | `Target class [session.store]` | `Auth`, which registers the session — not a session concern |
+| `Session store not set on request` | `Auth` |
 | `Target class [validator]` | `Validation` |
 | `Target class [view]` | `Views` |
 | `Target class [cache]` | `Cache` |
@@ -133,7 +134,8 @@ middleware. The exception handler still runs: a missing route is a 404, a
   concerns it does not seem to use. Read the error as "the route file needs this".
 - **Middleware does not run.** Test middleware on the full `TestCase`.
   `WithoutMiddleware` is not needed with `Routes`.
-- `Auth` is enough for an in-memory user. To find a user by id, add `Database`.
+- `Auth` is enough for an in-memory user and `$request->session()`. To find a user by id,
+  add `Database`.
 
 ## Commands and migrations
 

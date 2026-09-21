@@ -21,5 +21,8 @@ trait Auth
         $this->app->register(new SessionServiceProvider($this->app));
 
         $this->app->register(new AuthServiceProvider($this->app));
+
+        // `StartSession` never runs: middleware is off.
+        $this->app->rebinding('request', fn ($app, $request) => $request->setLaravelSession($app['session.store']));
     }
 }

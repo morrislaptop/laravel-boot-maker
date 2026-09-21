@@ -3,6 +3,7 @@
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Morrislaptop\LaravelBootMaker\Tests\PartialTestCase;
 
@@ -59,6 +60,13 @@ class RoutesTest extends PartialTestCase
         $this->postJson('/things', [])->assertStatus(422)->assertJsonValidationErrors('name');
 
         $this->postJson('/things', ['name' => 'Bob'])->assertOk()->assertExactJson(['name' => 'Bob']);
+    }
+
+    public function test_it_gives_the_request_a_session()
+    {
+        Route::get('/session', fn (Request $request) => $request->session()->getId());
+
+        $this->get('/session')->assertOk()->assertSee($this->app['session.store']->getId());
     }
 
     protected function additionalProviders(): array

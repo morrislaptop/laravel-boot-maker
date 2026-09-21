@@ -124,8 +124,8 @@ class ProfileTest extends PartialTestCase
 - **Middleware does not run.** Test middleware on the full `TestCase`.
 - Route files run your code, so a route test can need concerns it does not seem to use.
   Add what the error names.
-- `Auth` is enough for `actingAs()` and `$request->user()`. To find a user by id, add
-  `Database` too.
+- `Auth` is enough for `actingAs()`, `$request->user()` and `$request->session()`. To
+  find a user by id, add `Database` too.
 
 ### Extra service providers
 
