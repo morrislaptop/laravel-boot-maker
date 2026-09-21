@@ -8,7 +8,7 @@ use Morrislaptop\LaravelBootMaker\Tests\PartialTestCase;
 
 class DatabaseTransactionsTest extends PartialTestCase
 {
-    use Database, DatabaseTransactions;
+    use DatabaseTransactions;
 
     public function test_it_can_test_database_transactions()
     {

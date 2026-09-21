@@ -15,8 +15,8 @@ service provider. Boot is most of what a unit test costs, so a converted file us
   booted: `Routes`, `Auth`, `Console`, `RefreshDatabase`, `DatabaseMigrations`.
 - `Routes`, `Console` and `AdditionalProviders` register `additionalProviders()`. A test
   needing a package's binding but making no request uses `AdditionalProviders`.
-- `Database` on its own commits. Pair it with `DatabaseTransactions` or `RefreshDatabase`
-  unless the test only reads.
+- `Database` on its own commits. A test that writes uses `DatabaseTransactions` or
+  `RefreshDatabase` instead; both include it.
 - `Routes` runs no middleware. A test asserting on middleware behaviour, or on a
   binding only a full boot can build, stays on the full `TestCase`.
 

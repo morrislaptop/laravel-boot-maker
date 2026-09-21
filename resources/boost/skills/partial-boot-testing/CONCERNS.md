@@ -48,7 +48,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Translation` | `TranslationServiceProvider` | `Filesystem` |
 | `Validation` | `ValidationServiceProvider`, `FoundationServiceProvider` for the `$request->validate()` macro, and a booted `FormRequestServiceProvider` | `Translation` |
 | `Views` | `ViewServiceProvider` | `Filesystem` |
-| `Database` | `DatabaseServiceProvider`. **On its own it commits**: pair it with `DatabaseTransactions` or `RefreshDatabase` unless the test only reads | `Config` |
+| `Database` | `DatabaseServiceProvider`. **On its own it commits**: a test that writes uses `DatabaseTransactions` or `RefreshDatabase` instead | `Config` |
 | `Cache` | `CacheServiceProvider` | `Config` |
 | `Logging` | `LogServiceProvider` | `Config` |
 | `Hashing` | `HashServiceProvider` | `Config` |
@@ -65,7 +65,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `RefreshDatabase` | Laravel's `RefreshDatabase` | `Console`, `Database` |
 | `DatabaseMigrations` | Laravel's `DatabaseMigrations` | `Console`, `Database` |
 | `WithFaker` | Laravel's `WithFaker` | `Config` |
-| `DatabaseTransactions` | Laravel's `DatabaseTransactions` | — |
+| `DatabaseTransactions` | Laravel's `DatabaseTransactions` | `Database` |
 
 Because concerns pull in others, name only the one you need: `Validation` already gives
 you `Translation` and `Filesystem`.
@@ -73,8 +73,8 @@ you `Translation` and `Filesystem`.
 **`Database` alone writes for real.** Nothing in it rolls anything back, so a test that
 saves leaves its rows in the test database with no error and no warning, and whatever
 runs next reads them. That is the right behaviour for a read-only or in-memory test and a
-trap for any other, so add `DatabaseTransactions` or `RefreshDatabase` the moment a test
-writes.
+trap for any other, so switch to `DatabaseTransactions` or `RefreshDatabase` the moment a
+test writes. Both include `Database`.
 
 ## Trait names collide with facade names
 

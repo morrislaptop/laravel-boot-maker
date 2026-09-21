@@ -97,8 +97,8 @@ Two more blockers are the application's shape, not the package's limits. In that
   real cause.
 - **`Database` alone commits.** It binds the connection and nothing that rolls back, so
   a test that writes leaves its rows behind — silently, and in a shared test database
-  that breaks whatever runs next. Pair it with `DatabaseTransactions` or
-  `RefreshDatabase` unless the test only reads.
+  that breaks whatever runs next. A test that writes uses `DatabaseTransactions` or
+  `RefreshDatabase` instead; both include it.
 - **`Database` is what binds Faker.** `DatabaseServiceProvider` binds
   `Faker\Generator`, so a model factory failing with `Unknown format "uuid"` needs
   `Database`, not `WithFaker`.

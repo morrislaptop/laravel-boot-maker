@@ -6,10 +6,12 @@ use Illuminate\Foundation\Testing\DatabaseTransactions as TestingDatabaseTransac
 
 trait DatabaseTransactions
 {
-    use TestingDatabaseTransactions;
+    use Database, TestingDatabaseTransactions;
 
     protected function setUpDatabaseTransactions()
     {
+        $this->setUpDatabase();
+
         $this->beginDatabaseTransaction();
     }
 }

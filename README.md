@@ -178,8 +178,8 @@ The schedule comes from that same callback and would read as empty, so resolving
 
 `Database` on its own binds the connection and nothing that rolls back, so a test that
 writes commits, silently, into whatever database the suite shares. That is what a read-only
-or in-memory test wants; anything that writes needs `DatabaseTransactions` or
-`RefreshDatabase` alongside it.
+or in-memory test wants; anything that writes uses `DatabaseTransactions` or
+`RefreshDatabase` instead, and both include `Database`.
 
 Run the whole suite in one process before keeping a conversion. A file that passes on its
 own can still fail among the rest, because a full boot earlier in the process leaves global
