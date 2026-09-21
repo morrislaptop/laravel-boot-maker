@@ -32,9 +32,9 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `no such table` | `RefreshDatabase` or `DatabaseMigrations` |
 | `Target [X] is not instantiable` while building a listener | override `eventServiceProvider()` |
 | A route or command needs a package's provider (Inertia macros, localisation, auditing) | list it in `additionalProviders()` |
-| `Target [SomeContract] is not instantiable` naming a package's class (auditing, Livewire, Filament) | list that package's provider in `additionalProviders()`, with `AdditionalProviders` if the test makes no request and runs no command |
+| `Target [SomeContract] is not instantiable` naming a package's class | list the package's provider in `additionalProviders()`. Add `AdditionalProviders` if the test makes no request and runs no command |
 | `Fatal error: Cannot use ... as Auth because the name is already in use` | alias the concern, not the facade |
-| `Nothing is bound for [Illuminate\Support\Facades\Auth]`, only when other tests run first | the concern that binds it: a full boot earlier in the process aliased the facade as a global class, and the container would otherwise build the facade itself |
+| `Nothing is bound for [Illuminate\Support\Facades\Auth]`, only when other tests run first | the concern that binds `auth` |
 
 ## What each registers
 
@@ -48,7 +48,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Translation` | `TranslationServiceProvider` | `Filesystem` |
 | `Validation` | `ValidationServiceProvider`, `FoundationServiceProvider` for the `$request->validate()` macro, and a booted `FormRequestServiceProvider` | `Translation` |
 | `Views` | `ViewServiceProvider` | `Filesystem` |
-| `Database` | `DatabaseServiceProvider`. **On its own it commits**: a test that writes uses `DatabaseTransactions` or `RefreshDatabase` instead | `Config` |
+| `Database` | `DatabaseServiceProvider`. Does not roll back | `Config` |
 | `Cache` | `CacheServiceProvider` | `Config` |
 | `Logging` | `LogServiceProvider` | `Config` |
 | `Hashing` | `HashServiceProvider` | `Config` |
@@ -67,23 +67,16 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `WithFaker` | Laravel's `WithFaker` | `Config` |
 | `DatabaseTransactions` | Laravel's `DatabaseTransactions` | `Database` |
 
-Because concerns pull in others, name only the one you need: `Validation` already gives
-you `Translation` and `Filesystem`.
+Concerns pull in others, so name only the one you need: `Validation` already gives you
+`Translation` and `Filesystem`.
 
-**`Database` alone writes for real.** Nothing in it rolls anything back, so a test that
-saves leaves its rows in the test database with no error and no warning, and whatever
-runs next reads them. That is the right behaviour for a read-only or in-memory test and a
-trap for any other, so switch to `DatabaseTransactions` or `RefreshDatabase` the moment a
-test writes. Both include `Database`.
+**`Database` alone does not roll back.** A test that writes keeps its rows, and the next
+test sees them. Use `DatabaseTransactions` or `RefreshDatabase` for any test that writes.
 
 ## Trait names collide with facade names
 
-`use Morrislaptop\LaravelBootMaker\Concerns\Auth;` next to
-`use Illuminate\Support\Facades\Auth;` is a PHP fatal at compile time, not a test
-failure: `Cannot use ... as Auth because the name is already in use`. The same goes for
-`Cache`, `Mail`, `Queues`, `Bus`, `Events`, `Notifications` and `Validation`.
-
-Alias the concern, never the facade, so the facade calls in the body still read as usual:
+`Auth`, `Cache`, `Mail`, `Queues`, `Bus`, `Events`, `Notifications` and `Validation` are
+both a concern and a facade. Importing both is a PHP fatal error. Alias the concern:
 
 ```php
 use Illuminate\Support\Facades\Auth;
@@ -92,18 +85,13 @@ use Morrislaptop\LaravelBootMaker\Concerns\Auth as AuthConcern;
 
 ## Hooks
 
-Both live on `PartialTestCase`, not on a concern trait, because a trait method wins over an
-inherited one and an override on your own `Tests\PartialTestCase` would silently lose.
+Override these on your own `Tests\PartialTestCase`.
 
 ### `eventServiceProvider()`
 
-`Events` prefers the application's own `App\Providers\EventServiceProvider`, since that maps
-its listeners. Laravel 11 and later do not ship one; the fallback is the framework's, which
-binds the dispatcher and nothing else.
-
-An application's provider often maps subscribers whose dependencies only bind under a full
-boot: `Target [X] is not instantiable while building [SomeSubscriber]`. Force the
-framework's then:
+`Events` uses `App\Providers\EventServiceProvider` if it exists, else the framework's.
+If the app's provider fails with `Target [X] is not instantiable while building
+[SomeSubscriber]`, use the framework's:
 
 ```php
 protected function eventServiceProvider(): ServiceProvider
@@ -114,7 +102,7 @@ protected function eventServiceProvider(): ServiceProvider
 
 ### `additionalProviders()`
 
-Providers no concern covers, which a route file, controller or command reaches for.
+Providers that no concern covers:
 
 ```php
 protected function additionalProviders(): array
@@ -126,50 +114,34 @@ protected function additionalProviders(): array
 }
 ```
 
-`Routes`, `Console` and `AdditionalProviders` register these, after every other concern has
-run. A provider has prerequisites of its own — one adding a request macro needs `request`
-bound — so a test naming none of the three does not pay for one. Expect the concern list of
-a `Routes` or `Console` test to grow to satisfy the providers rather than the test itself.
+- Only `Routes`, `Console` and `AdditionalProviders` register them, after all other
+  concerns.
+- A provider can need more concerns than the test itself, for example `request` for a
+  request macro.
+- No request and no command? Use `AdditionalProviders`, not `Routes`. Then re-run: you
+  lose the concerns `Routes` pulled in.
+- List a package's provider even when its config is published. The provider merges the
+  rest of the config.
 
-Use `AdditionalProviders` when a test needs a package's binding but makes no request and
-runs no command: a unit test saving an audited model needs the auditing provider and
-nothing else. Adding `Routes` to reach the same binding costs a boot the test never uses.
-Swapping `Routes` out drops the concerns it composes, so re-run and add back what fails.
+## Requests
 
-A package whose config its provider merges needs listing even when the application has
-published that config: the published file is usually only part of it.
+`Routes` replaces the HTTP kernel with `PartialHttpKernel`. It has no bootstrappers and no
+middleware. The exception handler still runs: a missing route is a 404, a
+`ValidationException` is a 422.
 
-## Requests without the framework
+- `Routes` runs last, because route files run application code. So a route test can need
+  concerns it does not seem to use. Read the error as "the route file needs this".
+- **Middleware does not run.** Test middleware on the full `TestCase`.
+  `WithoutMiddleware` is not needed with `Routes`.
+- `Auth` is enough for an in-memory user. To find a user by id, add `Database`.
 
-`Routes` swaps the application's HTTP kernel for `PartialHttpKernel`, which skips the
-bootstrappers and the middleware stack. `$this->get()` and friends work as usual, exception
-handler included, so a missing route is still a 404 and a `ValidationException` a 422.
+## Commands and migrations
 
-It runs last whatever order the traits are declared in, because route files run application
-code that can touch any other concern. That is also why a route test often needs concerns
-it does not appear to use: a route file calling a localisation package resolves `translator`
-while registering, so it needs `Translation` even though it translates nothing. Read the
-failure as "the route file needs this".
+`Console` lets `$this->artisan()` run. The framework's commands (`migrate`, `make:*`) are
+available.
 
-The container is never booted, only the route provider and `additionalProviders()`. Booting
-it would replay every `bootstrap/app.php` callback, dragging in `withBroadcasting()` and
-friends.
-
-**Middleware does not run.** It is defined by the real kernel and wants sessions, cookies
-and CSRF, so `Routes` tests the route, its controller and what they call — not auth
-middleware, throttling or CSRF. `WithoutMiddleware` is redundant alongside it.
-
-`Auth` registers the guard directly. An in-memory user is enough; a lookup by id needs
-`Database` too.
-
-## Commands and migrations without the framework
-
-`Console` marks the application as bootstrapped without running a single bootstrapper, so
-the console kernel skips its own bootstrap but stays in place. It also registers the
-framework's commands, so `migrate` and `make:*` are there.
-
-**Name the commands you run.** Laravel 11 registers an application's commands, and its
-`routes/console.php`, from a callback only a full boot fires:
+On Laravel 11 and later, list the commands the test runs. A Laravel 10 kernel with its own
+`commands()` method still works.
 
 ```php
 protected function consoleCommands(): array
@@ -178,28 +150,14 @@ protected function consoleCommands(): array
 }
 ```
 
-Naming them is the point: pointing the kernel at a command directory would build every
-command in it, and every binding those need. A Laravel 10 kernel with its own `commands()`
-method still loads from there.
-
-**The schedule cannot be read.** It comes from that same callback, so a partial boot would
-report it empty and quietly pass a test asserting nothing is scheduled. Resolving
-`Schedule` throws `FullBootRequired` instead.
-
-`RefreshDatabase` and `DatabaseMigrations` run `$this->artisan('migrate')`, so they build
-on `Console`. They are **not** a drop-in
-for an application overriding `refreshTestDatabase()` to cache a migration checksum or
-seed: they run `migrate:fresh` and skip it. Compose your own trait instead.
-
-The gain scales with how many providers your application boots, so command tests can gain
-as much as any. Migration-heavy tests gain least, since running the migrations dominates.
+- **The schedule is not available.** Resolving `Schedule` throws `FullBootRequired`.
+- `RefreshDatabase` and `DatabaseMigrations` run `migrate:fresh`. They ignore an override
+  of `refreshTestDatabase()`. If you need one, write your own trait.
+- Tests that run many migrations gain the least.
 
 ## What still needs a full boot
 
-Only the schedule guard throws `FullBootRequired`. What is left is:
-
-- a test asserting on **middleware** behaviour: auth redirects, throttling, CSRF
-- a test reading the **schedule**
-- code reaching a binding only an application or package provider registers, when that
-  provider cannot be built partially (a model calling into Nova, say). Try
-  `additionalProviders()` first; if the provider itself needs a full boot, stop there.
+- a test of **middleware**: auth redirects, throttling, CSRF
+- a test of the **schedule**
+- code that needs a provider which cannot boot partially, for example Nova. Try
+  `additionalProviders()` first.

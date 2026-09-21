@@ -13,8 +13,7 @@ It's likely that you're not using all the features for each test, slowing down y
 test suite considerably. 
 
 This package allows you to "opt in" to boot just the Laravel features you need for 
-your test to pass. Your test will run much quicker as a result. The suite total moves
-less than that, because the slowest files are usually the ones that resist conversion.
+your test to pass. Your test will run much quicker as a result. 
 
 ## Installation
 
@@ -101,9 +100,7 @@ class QuestionCreatedTest extends PartialTestCase
 
 ### HTTP requests and authentication
 
-`$this->get()` boots everything, because it goes through the application's HTTP kernel.
-`Routes` swaps that kernel for one with no bootstrappers and no middleware, so requests
-dispatch straight to the route:
+`Routes` lets `$this->get()` and friends run without a full boot:
 
 ```php
 use Morrislaptop\LaravelBootMaker\Concerns\Auth;
@@ -123,22 +120,16 @@ class ProfileTest extends PartialTestCase
 }
 ```
 
-The exception handler still runs: a missing route is a 404, a failed validation a 422.
+- Errors still render: a missing route is a 404, a failed validation is a 422.
+- **Middleware does not run.** Test middleware on the full `TestCase`.
+- Route files run your code, so a route test can need concerns it does not seem to use.
+  Add what the error names.
+- `Auth` is enough for `actingAs()` and `$request->user()`. To find a user by id, add
+  `Database` too.
 
-**Middleware does not run.** It is defined by the real kernel and wants sessions, cookies
-and CSRF, so assert on middleware from the full `TestCase`.
+### Extra service providers
 
-Route files run application code, so a route test often needs concerns it does not appear
-to use. Add whatever the failure names.
-
-`Auth` registers the guard directly, which is enough for `actingAs()` and
-`$request->user()`. Looking a user up by id also needs `Database`.
-
-Providers no concern covers go on your own base test case, where `Routes`, `Console` and
-`AdditionalProviders` pick them up. Nothing else registers them: a provider has
-prerequisites of its own, and a test naming none of the three should not pay for one. Reach
-for `AdditionalProviders` when a test needs a package's binding but makes no request and
-runs no command, rather than adding `Routes` for a boot it never uses.
+Put providers that no concern covers on your base test case:
 
 ```php
 abstract class PartialTestCase extends BasePartialTestCase
@@ -147,20 +138,20 @@ abstract class PartialTestCase extends BasePartialTestCase
 
     protected function additionalProviders(): array
     {
-        return [\Inertia\ServiceProvider::class, \App\Providers\MacrosServiceProvider::class];
+        return [\Inertia\ServiceProvider::class];
     }
 }
 ```
 
-That base class is also where you override `eventServiceProvider()`.
+Only `Routes`, `Console` and `AdditionalProviders` register them. Use `AdditionalProviders`
+when a test needs a provider but makes no request and runs no command.
 
 ### Commands and migrations
 
-`Console` marks the application as bootstrapped without running a bootstrapper, so
-`$this->artisan()` works. `RefreshDatabase` and `DatabaseMigrations` build on it.
+`Console` lets `$this->artisan()` run without a full boot. `RefreshDatabase` and
+`DatabaseMigrations` use it.
 
-Laravel 11 registers an application's commands from a callback only a full boot fires, so
-name the ones the test runs:
+On Laravel 11 and later, list the commands the test runs:
 
 ```php
 protected function consoleCommands(): array
@@ -169,20 +160,15 @@ protected function consoleCommands(): array
 }
 ```
 
-The schedule comes from that same callback and would read as empty, so resolving it throws
-`FullBootRequired`. These are also not a drop-in for an application overriding
-`refreshTestDatabase()` — they run `migrate:fresh` and skip it.
+- The schedule is not available. Resolving it throws `FullBootRequired`.
+- Both run `migrate:fresh`. They ignore an override of `refreshTestDatabase()`.
 
 ### Two traps
 
-`Database` on its own binds the connection and nothing that rolls back, so a test that
-writes commits, silently, into whatever database the suite shares. That is what a read-only
-or in-memory test wants; anything that writes uses `DatabaseTransactions` or
-`RefreshDatabase` instead, and both include `Database`.
-
-Run the whole suite in one process before keeping a conversion. A file that passes on its
-own can still fail among the rest, because a full boot earlier in the process leaves global
-state behind that a partial boot then inherits.
+- `Database` alone does not roll back. A test that writes keeps its rows. Use
+  `DatabaseTransactions` or `RefreshDatabase` for those. Both include `Database`.
+- A file can pass alone and fail in the full suite, because an earlier full boot leaves
+  global state behind. Run the whole suite before you keep a conversion.
 
 For a full list of features to enable, see [src/Concerns](src/Concerns/);
 

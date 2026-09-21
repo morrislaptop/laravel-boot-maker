@@ -56,48 +56,34 @@ Work one file at a time. Do not guess the concerns up front — let the failure 
 5. Stop after about four attempts. Some tests need the whole framework; that is a
    fine answer, revert the file and move on.
 6. Compare the `Time:` line before and after. Keep the change only if it is faster.
-7. Run the **whole suite in one process** before keeping the conversion. A converted
-   file that passes alone can still fail among the rest: a full boot earlier in the
-   process leaves global state behind, and a `Database` test with no transaction
-   writes rows the tests after it read. Per-file green is not evidence.
+7. Run the **whole suite in one process** before keeping the conversion. A file that
+   passes alone can fail among the rest: an earlier full boot leaves global state
+   behind, and a `Database` test without a transaction leaves rows behind.
 
-Expect the suite to gain much less than a converted file: the slowest files are the
-ones that resist conversion. Quote the suite number, not the per-file one.
+The suite gains less than one converted file does, because the slowest files are
+usually the ones that cannot convert. Report the suite time.
 
 ## When a test cannot be converted
 
-Three things stay on the full `TestCase`: a test asserting on **middleware** (auth
-redirects, throttling, CSRF), a test reading the **schedule**, and code reaching a binding
-only an application or package provider registers when that provider cannot be built
-partially — a model calling into Nova, a Filament/Livewire page. Try listing the provider
-in `additionalProviders()` first.
+These stay on the full `TestCase`:
 
-Everything else has a concern, including HTTP requests (`Routes`), authentication (`Auth`),
-commands (`Console`) and migrations (`RefreshDatabase`, `DatabaseMigrations`). A command
-test must name its command in `consoleCommands()`.
+- a test of **middleware** (auth redirects, throttling, CSRF)
+- a test of the **schedule**
+- code that needs a provider which cannot boot partially, for example Nova, Filament or
+  Livewire. Try `additionalProviders()` first.
 
-Two more blockers are the application's shape, not the package's limits, and they often
-block more files than anything above:
+The application's shape can also block a file:
 
-- **A shared domain base class.** Converting one file means converting the base, so the
-  group is all or nothing. Do the base or leave the group alone.
-- **Helpers on the app's own `TestCase`**, which are unreachable from
-  `PartialTestCase`. Move them into a trait both can use rather than copying them.
+- **A shared base test class.** Convert the base and all its tests, or none.
+- **Helpers on the app's own `TestCase`.** Move them into a trait both base classes use.
 
 ## Things that surprise people
 
-- **Deprecations appear.** The full boot installs `HandleExceptions`, whose error
-  handler swallows PHP deprecations. A partial boot has no such handler, so real
-  pre-existing deprecations in the source become visible. Fix the source; they were
-  not caused by the conversion.
-- **A 500 in a route test does not look like one.** The application's error page still
-  renders, so a test that never asserts a status fails later on a confusing assertion.
-  Assert `->assertOk()` first while converting, and `dump()` the response to see the
-  real cause.
-- **`Database` alone commits.** It binds the connection and nothing that rolls back, so
-  a test that writes leaves its rows behind — silently, and in a shared test database
-  that breaks whatever runs next. A test that writes uses `DatabaseTransactions` or
-  `RefreshDatabase` instead; both include it.
-- **`Database` is what binds Faker.** `DatabaseServiceProvider` binds
-  `Faker\Generator`, so a model factory failing with `Unknown format "uuid"` needs
+- **Deprecations appear.** A full boot hides PHP deprecations. A partial boot does not.
+  They are real. Fix the source.
+- **A 500 in a route test looks like a different failure.** Assert `->assertOk()` first
+  while converting, and `dump()` the response to see the cause.
+- **`Database` alone does not roll back.** A test that writes keeps its rows, and the
+  next test sees them. Use `DatabaseTransactions` or `RefreshDatabase`.
+- **`Database` binds Faker.** A factory failing with `Unknown format "uuid"` needs
   `Database`, not `WithFaker`.
