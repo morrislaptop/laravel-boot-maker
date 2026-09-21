@@ -11,6 +11,8 @@ use Morrislaptop\LaravelBootMaker\PartialHttpKernel;
 
 trait Routes
 {
+    // Views: Laravel's response factory takes the view factory in its constructor, so even
+    // `response()->json()` and a JSON error response need it.
     use Config, Events, Facades, SetRequestForConsole, Views;
 
     protected function setUpRoutes()
