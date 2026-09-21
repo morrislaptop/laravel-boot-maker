@@ -34,6 +34,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Target [X] is not instantiable` while building a listener | override `eventServiceProvider()` |
 | A route or command needs a package's provider (Inertia macros, localisation, auditing) | list it in `additionalProviders()` |
 | `Target [SomeContract] is not instantiable` naming a package's class | list the package's provider in `additionalProviders()`. Add `AdditionalProviders` if the test makes no request and runs no command |
+| A package's query builder or connection features are missing, though its provider is listed | move the provider to `databaseProviders()` |
 | `Fatal error: Cannot use ... as Auth because the name is already in use` | alias the concern, not the facade |
 | `Nothing is bound for [Illuminate\Support\Facades\Auth]`, only when other tests run first | the concern that binds `auth` |
 
@@ -49,7 +50,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Translation` | `TranslationServiceProvider` | `Filesystem` |
 | `Validation` | `ValidationServiceProvider`, `FoundationServiceProvider` for the `$request->validate()` macro, and a booted `FormRequestServiceProvider` | `Translation` |
 | `Views` | `ViewServiceProvider` | `Filesystem` |
-| `Database` | `DatabaseServiceProvider`. Does not roll back | `Config` |
+| `Database` | `DatabaseServiceProvider` and `databaseProviders()`. Does not roll back | `Config` |
 | `Cache` | `CacheServiceProvider` | `Config` |
 | `Logging` | `LogServiceProvider` | `Config` |
 | `Hashing` | `HashServiceProvider` | `Config` |
@@ -123,6 +124,21 @@ protected function additionalProviders(): array
   lose the concerns `Routes` pulled in.
 - List a package's provider even when its config is published. The provider merges the
   rest of the config.
+
+### `databaseProviders()`
+
+Providers that change the database layer, for example one that rebinds `db.factory`:
+
+```php
+protected function databaseProviders(): array
+{
+    return [\Vendor\Package\DatabaseServiceProvider::class];
+}
+```
+
+- `Database` registers them after the framework's database provider registers and before
+  it boots. Boot builds the manager, which keeps the `db.factory` it was given.
+- In `additionalProviders()` they come too late: the manager already has the old factory.
 
 ## Requests
 

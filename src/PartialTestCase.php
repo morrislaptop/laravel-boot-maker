@@ -71,6 +71,16 @@ abstract class PartialTestCase extends TestCase
     }
 
     /**
+     * Registered by `Database` between the database provider's register and boot.
+     *
+     * @return array<int, string|ServiceProvider>
+     */
+    protected function databaseProviders(): array
+    {
+        return [];
+    }
+
+    /**
      * Laravel 11 and later register application commands only on a full boot.
      *
      * @return array<int, string>

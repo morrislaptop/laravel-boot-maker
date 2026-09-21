@@ -146,6 +146,18 @@ abstract class PartialTestCase extends BasePartialTestCase
 Only `Routes`, `Console` and `AdditionalProviders` register them. Use `AdditionalProviders`
 when a test needs a provider but makes no request and runs no command.
 
+- One test can add a provider on top of the base list:
+
+  ```php
+  protected function additionalProviders(): array
+  {
+      return [...parent::additionalProviders(), X::class];
+  }
+  ```
+
+- Providers that change the database layer, for example by rebinding `db.factory`, go in
+  `databaseProviders()`. `Database` registers them before the database manager is built.
+
 ### Commands and migrations
 
 `Console` lets `$this->artisan()` run without a full boot. `RefreshDatabase` and
