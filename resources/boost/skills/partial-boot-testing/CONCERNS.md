@@ -58,7 +58,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Mail` | `MailServiceProvider` | `Config`, `Views` |
 | `Notifications` | `NotificationServiceProvider` | — |
 | `Events` | `FilesystemServiceProvider`, `CacheServiceProvider`, and the app's `App\Providers\EventServiceProvider` if it has one, else the framework's | — |
-| `AdditionalProviders` | `additionalProviders()` | — |
+| `AdditionalProviders` | `additionalProviders()` | `Config`, `Facades`, `SetRequestForConsole` |
 | `Routes` | `RoutingServiceProvider`, `additionalProviders()`, the app's route provider, and a `PartialHttpKernel` | `Config`, `Events`, `Facades`, `SetRequestForConsole`, `Views` |
 | `Auth` | `CookieServiceProvider`, `SessionServiceProvider`, `AuthServiceProvider` | `Config`, `Events`, `Hashing`, `SetRequestForConsole` |
 | `Console` | marks the app bootstrapped without bootstrapping, plus `ConsoleSupportServiceProvider`, `additionalProviders()` and `consoleCommands()` | `Config`, `Events`, `Facades` |
@@ -134,6 +134,7 @@ a `Routes` or `Console` test to grow to satisfy the providers rather than the te
 Use `AdditionalProviders` when a test needs a package's binding but makes no request and
 runs no command: a unit test saving an audited model needs the auditing provider and
 nothing else. Adding `Routes` to reach the same binding costs a boot the test never uses.
+Swapping `Routes` out drops the concerns it composes, so re-run and add back what fails.
 
 A package whose config its provider merges needs listing even when the application has
 published that config: the published file is usually only part of it.

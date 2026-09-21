@@ -2,8 +2,7 @@
 
 This package boots only the parts of Laravel a test needs, instead of registering every
 service provider. Boot is most of what a unit test costs, so a converted file usually runs
-3x to 10x faster. The suite total moves much less, because the slowest files are the ones
-that resist conversion: a real 1543-test suite gained 2.6% from converting 16 of 152 files.
+3x to 10x faster.
 
 ### Conventions
 
