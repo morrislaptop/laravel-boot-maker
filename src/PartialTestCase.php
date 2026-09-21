@@ -11,6 +11,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 use Morrislaptop\LaravelBootMaker\Exceptions\FullBootRequired;
+use ReflectionClass;
 
 abstract class PartialTestCase extends TestCase
 {
@@ -35,20 +36,22 @@ abstract class PartialTestCase extends TestCase
 
         Facade::setFacadeApplication($this->app);
 
-        $this->failOnFacadeBuiltFromGlobalAlias();
+        $this->failOnClassBuiltFromUnboundName();
     }
 
     /**
-     * An earlier full boot leaves global aliases like `Auth` behind. Class names are case
-     * insensitive, so an unbound `auth` would build the facade instead of failing.
+     * Class names are case insensitive, so an unbound `redis` builds phpredis' `Redis`, and an
+     * unbound `auth` builds the `Auth` facade an earlier full boot aliased.
      */
-    private function failOnFacadeBuiltFromGlobalAlias(): void
+    private function failOnClassBuiltFromUnboundName(): void
     {
-        $this->app->resolving(function (mixed $instance) {
-            if ($instance instanceof Facade) {
-                throw new BindingResolutionException(
-                    'Nothing is bound for ['.$instance::class.']. Use the concern that binds it.'
-                );
+        $this->app->beforeResolving(function (string $abstract) {
+            if (str_contains($abstract, '\\') || $this->app->bound($abstract) || ! class_exists($abstract)) {
+                return;
+            }
+
+            if ((new ReflectionClass($abstract))->getName() !== $abstract) {
+                throw new BindingResolutionException("Nothing is bound for [{$abstract}]. Use the concern that binds it.");
             }
         });
     }

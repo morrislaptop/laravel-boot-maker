@@ -4,6 +4,7 @@ namespace Morrislaptop\LaravelBootMaker\Tests;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Auth as AuthFacade;
+use Illuminate\Support\Fluent;
 use Morrislaptop\LaravelBootMaker\Concerns\Database;
 
 class FacadeAliasCollisionTest extends PartialTestCase
@@ -18,5 +19,15 @@ class FacadeAliasCollisionTest extends PartialTestCase
         $this->expectException(BindingResolutionException::class);
 
         AuthFacade::guard();
+    }
+
+    public function test_it_reports_a_missing_binding_that_names_a_global_class()
+    {
+        // What phpredis defines.
+        class_exists('Redis') || class_alias(Fluent::class, 'Redis');
+
+        $this->expectException(BindingResolutionException::class);
+
+        $this->app->make('redis');
     }
 }

@@ -178,10 +178,12 @@ protected function consoleCommands(): array
 - `$this->seed()` runs the seeders directly. It needs `Database`, not `Console`.
 - Both run `migrate:fresh`. They ignore an override of `refreshTestDatabase()`.
 
-### Two traps
+### Traps
 
 - `Database` alone does not roll back. A test that writes keeps its rows. Use
   `DatabaseTransactions` or `RefreshDatabase` for those. Both include `Database`.
+- `app('redis')` needs the `Redis` concern. Without it you get `Nothing is bound for [redis]`,
+  not phpredis' own `Redis` class.
 - A file can pass alone and fail in the full suite, because an earlier full boot leaves
   global state behind. Run the whole suite before you keep a conversion.
 

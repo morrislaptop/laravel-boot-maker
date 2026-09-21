@@ -23,6 +23,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Target class [encrypter]` | `Encrypting` |
 | `Target class [hash]` | `Hashing` |
 | `Target class [mailer]` | `Mail` |
+| `Nothing is bound for [redis]`, or `RedisConnector::__construct(): Argument #1 ($redis) must be of type ...Factory, Redis given` | `Redis` |
 | `A facade root has not been set` | `Facades` |
 | `$this->get()` returns 404, or `Target class [router]` | `Routes` |
 | `Target class [db]` from a route with a model parameter | `Database` |
@@ -37,7 +38,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Target [SomeContract] is not instantiable` naming a package's class | list the package's provider in `additionalProviders()`. Add `AdditionalProviders` if the test makes no request and runs no command |
 | A package's query builder or connection features are missing, though its provider is listed | move the provider to `databaseProviders()` |
 | `Fatal error: Cannot use ... as Auth because the name is already in use` | alias the concern, not the facade |
-| `Nothing is bound for [Illuminate\Support\Facades\Auth]`, only when other tests run first | the concern that binds `auth` |
+| `Nothing is bound for [auth]`, only when other tests run first | the concern that binds `auth` |
 
 ## What each registers
 
@@ -53,6 +54,7 @@ All in `Morrislaptop\LaravelBootMaker\Concerns\`. Add the fewest that make the t
 | `Views` | `ViewServiceProvider` | `Filesystem` |
 | `Database` | `DatabaseServiceProvider` and `databaseProviders()`. Does not roll back | `Config` |
 | `Cache` | `CacheServiceProvider` | `Config` |
+| `Redis` | `RedisServiceProvider` | `Config` |
 | `Logging` | `LogServiceProvider` | `Config` |
 | `Hashing` | `HashServiceProvider` | `Config` |
 | `Encrypting` | `EncryptionServiceProvider` | `Config` |
@@ -78,7 +80,7 @@ test sees them. Use `DatabaseTransactions` or `RefreshDatabase` for any test tha
 
 ## Trait names collide with facade names
 
-`Auth`, `Cache`, `Mail`, `Queues`, `Bus`, `Events`, `Notifications` and `Validation` are
+`Auth`, `Cache`, `Mail`, `Queues`, `Bus`, `Events`, `Notifications`, `Redis` and `Validation` are
 both a concern and a facade. Importing both is a PHP fatal error. Alias the concern:
 
 ```php
