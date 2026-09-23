@@ -186,6 +186,8 @@ protected function consoleCommands(): array
   not phpredis' own `Redis` class.
 - A file can pass alone and fail in the full suite, because an earlier full boot leaves
   global state behind. Run the whole suite before you keep a conversion.
+- You may see new PHP deprecation warnings. A full boot hides them; a partial boot does
+  not. They come from your code or its dependencies, not from this package.
 - Your full `TestCase` may reset static state in `setUp()`, like a static cache. The partial
   base does not inherit that, so do it there too.
 

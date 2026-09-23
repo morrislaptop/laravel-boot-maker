@@ -54,7 +54,8 @@ Work one file at a time. Do not guess the concerns up front — let the failure 
 4. Repeat. **Add the fewest concerns that make it pass** — every extra one is boot
    time back.
 5. Stop after about four attempts. Some tests need the whole framework; that is a
-   fine answer, revert the file and move on.
+   fine answer, revert the file and move on. If only a few tests in the file need it,
+   move those to a new file on the full `TestCase` and convert the rest.
 6. Compare the `Time:` line before and after. Keep the change only if it is faster.
 7. Run the **whole suite in one process** before keeping the conversion. A file that
    passes alone can fail among the rest: an earlier full boot leaves global state
