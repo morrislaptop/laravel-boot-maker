@@ -2,6 +2,28 @@
 
 All notable changes to `laravel-boot-maker` will be documented in this file.
 
+## v0.7.0 - 2026-09-23
+
+HTTP, auth, commands and migrations no longer need a full boot.
+
+### New
+
+- `Routes`: `$this->get()` and friends, with route model binding. No middleware.
+- `Auth`: `actingAs()`, `$request->user()`, `$request->session()`.
+- `Console`: `$this->artisan()`. List Laravel 11+ app commands in `consoleCommands()`.
+- `RefreshDatabase` and `DatabaseMigrations` now work partially.
+- `Redis` concern.
+- `AdditionalProviders` concern and `additionalProviders()` hook, for providers no concern covers.
+- `databaseProviders()` hook, for packages that change the DB layer (e.g. laravel-cte).
+- `seed()` runs seeders without the console.
+
+### Breaking
+
+- `$this->artisan()` without `Console` throws `FullBootRequired`. Before, it did a silent full boot.
+- Resolving an unbound name like `auth` or `redis` throws `Nothing is bound for [auth]`.
+
+Full details: #39
+
 ## v0.6.0 - 2026-09-07
 
 Agent-facing docs, and two concerns that could not run.
