@@ -3,7 +3,6 @@
 namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use Illuminate\Foundation\Testing\WithoutMiddleware as TestingWithoutMiddleware;
-use Morrislaptop\LaravelBootMaker\Exceptions\FullBootRequired;
 
 trait WithoutMiddleware
 {
@@ -11,6 +10,6 @@ trait WithoutMiddleware
 
     protected function setUpWithoutMiddleware()
     {
-        throw new FullBootRequired('WithoutMiddleware requires booting the whole framework.');
+        $this->withoutMiddleware();
     }
 }

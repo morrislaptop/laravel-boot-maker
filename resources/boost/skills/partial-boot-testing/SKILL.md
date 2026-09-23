@@ -54,30 +54,38 @@ Work one file at a time. Do not guess the concerns up front — let the failure 
 4. Repeat. **Add the fewest concerns that make it pass** — every extra one is boot
    time back.
 5. Stop after about four attempts. Some tests need the whole framework; that is a
-   fine answer, revert the file and move on.
+   fine answer, revert the file and move on. If only a few tests in the file need it,
+   move those to a new file on the full `TestCase` and convert the rest.
 6. Compare the `Time:` line before and after. Keep the change only if it is faster.
+7. Run the **whole suite in one process** before keeping the conversion. A file that
+   passes alone can fail among the rest: an earlier full boot leaves global state
+   behind, and a `Database` test without a transaction leaves rows behind.
+
+The suite gains less than one converted file does, because the slowest files are
+usually the ones that cannot convert. Report the suite time.
 
 ## When a test cannot be converted
 
-These concerns throw `FullBootRequired` deliberately: `RefreshDatabase`,
-`DatabaseMigrations`, `Routes`, `Console`, `WithoutMiddleware`. A test that needs one
-of them stays on the full `TestCase`.
+These stay on the full `TestCase`:
 
-In practice that means anything which calls `route()` or generates a URL, sends an
-HTTP request, runs `$this->artisan()`, reads or writes real rows, renders a
-Filament/Livewire/Nova page, or resolves a binding that only an application service
-provider registers. Roughly a quarter of candidates fall here.
+- a test of **middleware** (auth redirects, throttling, CSRF)
+- a test of the **schedule**
+- code that needs a provider which cannot boot partially, for example Nova, Filament or
+  Livewire. Try `additionalProviders()` first.
 
-Helpers are a subtler blocker: a helper method defined on the app's own `TestCase` is
-unreachable from `PartialTestCase`. Move it into a trait both can use, rather than
-copying it.
+The application's shape can also block a file:
 
-## Two things that surprise people
+- **A shared base test class.** Convert the base and all its tests, or none.
+- **Helpers on the app's own `TestCase`.** Move them into a trait both base classes use.
+  This includes `setUp()` code that resets static state. Without it, tests leak state.
 
-- **Deprecations appear.** The full boot installs `HandleExceptions`, whose error
-  handler swallows PHP deprecations. A partial boot has no such handler, so real
-  pre-existing deprecations in the source become visible. Fix the source; they were
-  not caused by the conversion.
-- **`Database` is what binds Faker.** `DatabaseServiceProvider` binds
-  `Faker\Generator`, so a model factory failing with `Unknown format "uuid"` needs
+## Things that surprise people
+
+- **Deprecations appear.** A full boot hides PHP deprecations. A partial boot does not.
+  They are real. Fix the source.
+- **A 500 in a route test looks like a different failure.** Assert `->assertOk()` first
+  while converting, and `dump()` the response to see the cause.
+- **`Database` alone does not roll back.** A test that writes keeps its rows, and the
+  next test sees them. Use `DatabaseTransactions` or `RefreshDatabase`.
+- **`Database` binds Faker.** A factory failing with `Unknown format "uuid"` needs
   `Database`, not `WithFaker`.

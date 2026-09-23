@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Requests\StoreThingRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +18,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/me', fn (Request $request) => $request->user()?->name ?? 'guest')->name('me');
+
+Route::post('/validate', fn (Request $request) => $request->validate(['name' => 'required']));
+
+Route::post('/things', fn (StoreThingRequest $request) => $request->validated());

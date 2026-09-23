@@ -4,6 +4,7 @@ namespace Morrislaptop\LaravelBootMaker\Concerns;
 
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
+use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Support\Facades\DB;
 use Morrislaptop\LaravelBootMaker\Tests\PartialTestCase;
 
@@ -48,9 +49,22 @@ class DatabaseTest extends PartialTestCase
     {
         $this->createUsersTable();
 
-        $this->app->make(DatabaseSeeder::class)->run();
+        $this->seed(DatabaseSeeder::class);
 
         $this->assertDatabaseCount('users', 11);
+    }
+
+    public function test_the_manager_uses_the_factory_from_database_providers()
+    {
+        $factory = (fn () => $this->factory)->call($this->app['db']);
+
+        $this->assertNotSame(ConnectionFactory::class, $factory::class);
+        $this->assertSame($this->app['db.factory'], $factory);
+    }
+
+    protected function databaseProviders(): array
+    {
+        return [PartialTestDatabaseServiceProvider::class];
     }
 
     protected function createUsersTable()

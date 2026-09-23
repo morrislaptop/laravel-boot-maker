@@ -11,9 +11,13 @@ saving on a test that never touches the database.
   `createApplication()` without bootstrapping it.
 - Each test names the pieces it needs with a concern trait from
   `Morrislaptop\LaravelBootMaker\Concerns\`. Use the fewest that make it pass.
-- `RefreshDatabase`, `DatabaseMigrations`, `Routes`, `Console` and `WithoutMiddleware`
-  throw `FullBootRequired` on purpose. A test needing one of those stays on the full
-  `TestCase`.
+- Requests, auth, commands and migrations have concerns: `Routes`, `Auth`, `Console`,
+  `RefreshDatabase`, `DatabaseMigrations`.
+- Only `Routes`, `Console` and `AdditionalProviders` register `additionalProviders()`.
+  Use `AdditionalProviders` when the test makes no request and runs no command.
+- `Database` alone does not roll back. A test that writes uses `DatabaseTransactions`
+  or `RefreshDatabase`. Both include `Database`.
+- `Routes` runs no middleware. Middleware tests stay on the full `TestCase`.
 
 @verbatim
 <code-snippet name="A test that only needs the translator" lang="php">
@@ -28,5 +32,6 @@ final class PaymentTypeTest extends PartialTestCase
 @endverbatim
 
 When converting an existing test, add no concerns first, run the file, and add the one
-concern the error names. Use the `partial-boot-testing` skill for the full workflow and
-the error-to-concern table.
+concern the error names. Then run the whole suite: a file that passes alone can fail
+among the rest. Use the `partial-boot-testing` skill for the
+full workflow and the error-to-concern table.

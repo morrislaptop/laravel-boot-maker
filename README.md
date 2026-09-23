@@ -98,6 +98,99 @@ class QuestionCreatedTest extends PartialTestCase
 }
 ```
 
+### HTTP requests and authentication
+
+`Routes` lets `$this->get()` and friends run without a full boot:
+
+```php
+use Morrislaptop\LaravelBootMaker\Concerns\Auth;
+use Morrislaptop\LaravelBootMaker\Concerns\Routes;
+use Tests\PartialTestCase;
+
+class ProfileTest extends PartialTestCase
+{
+    use Auth, Routes;
+
+    public function test_it_shows_the_current_user()
+    {
+        $this->actingAs(new User(['name' => 'Bob']));
+
+        $this->get('/me')->assertOk()->assertSee('Bob');
+    }
+}
+```
+
+- Errors still render: a missing route is a 404, a failed validation is a 422.
+- Route model binding works. A missing model is a 404. Add `Database` for it.
+- **Middleware does not run.** Test middleware on the full `TestCase`.
+- Route files run your code, so a route test can need concerns it does not seem to use.
+  Add what the error names.
+- `Auth` is enough for `actingAs()`, `$request->user()` and `$request->session()`. To
+  find a user by id, add `Database` too.
+
+### Extra service providers
+
+Put providers that no concern covers on your base test case:
+
+```php
+abstract class PartialTestCase extends BasePartialTestCase
+{
+    use CreatesPartialApplication;
+
+    protected function additionalProviders(): array
+    {
+        return [\Inertia\ServiceProvider::class];
+    }
+}
+```
+
+Only `Routes`, `Console` and `AdditionalProviders` register them. Use `AdditionalProviders`
+when a test needs a provider but makes no request and runs no command.
+
+- One test can add a provider on top of the base list:
+
+  ```php
+  protected function additionalProviders(): array
+  {
+      return [...parent::additionalProviders(), X::class];
+  }
+  ```
+
+- Providers that change the database layer, for example by rebinding `db.factory`, go in
+  `databaseProviders()`. `Database` registers them before the database manager is built.
+
+### Commands and migrations
+
+`Console` lets `$this->artisan()` run without a full boot. `RefreshDatabase` and
+`DatabaseMigrations` use it.
+
+On Laravel 11 and later, list the commands the test runs:
+
+```php
+protected function consoleCommands(): array
+{
+    return [\App\Console\Commands\PruneProductTags::class];
+}
+```
+
+- The schedule is not available. Resolving it throws `FullBootRequired`.
+- Without `Console`, `$this->artisan()` throws `FullBootRequired`.
+- `$this->seed()` runs the seeders directly. It needs `Database`, not `Console`.
+- Both run `migrate:fresh`. They ignore an override of `refreshTestDatabase()`.
+
+### Traps
+
+- `Database` alone does not roll back. A test that writes keeps its rows. Use
+  `DatabaseTransactions` or `RefreshDatabase` for those. Both include `Database`.
+- `app('redis')` needs the `Redis` concern. Without it you get `Nothing is bound for [redis]`,
+  not phpredis' own `Redis` class.
+- A file can pass alone and fail in the full suite, because an earlier full boot leaves
+  global state behind. Run the whole suite before you keep a conversion.
+- You may see new PHP deprecation warnings. A full boot hides them; a partial boot does
+  not. They come from your code or its dependencies, not from this package.
+- Your full `TestCase` may reset static state in `setUp()`, like a static cache. The partial
+  base does not inherit that, so do it there too.
+
 For a full list of features to enable, see [src/Concerns](src/Concerns/);
 
 You can easily create your own Concerns by including it in a TestCase and ensuring
